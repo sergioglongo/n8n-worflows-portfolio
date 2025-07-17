@@ -1,0 +1,625 @@
+{
+  "name": "InmobiliariaV3",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1380,
+        420
+      ],
+      "id": "6210f45e-a436-45a8-8cdd-5174e05f09c6",
+      "name": "When chat message received",
+      "webhookId": "2741dd43-a63e-42a2-8d96-b53cdeab9842"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -200,
+        360
+      ],
+      "id": "f6f1a417-5d36-445b-8cd2-925c9bacbb19",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "bXhXAUvMRNyf1Uls",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('When chat message received').item.json.sessionId }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -200,
+        540
+      ],
+      "id": "c630bc83-8d28-499b-853c-0886151cf972",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ $fromAI(\"query\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        520,
+        220
+      ],
+      "id": "f8d898fe-c14e-4b02-9f86-ea9d1365e1d4",
+      "name": "Postgres_Inmuebles_alquiler",
+      "credentials": {
+        "postgres": {
+          "id": "Ev6R4GTRt5uuWggx",
+          "name": "Postgres Inmobiliaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ $fromAI(\"query\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        560,
+        560
+      ],
+      "id": "6f3a6123-04c8-4ce0-810e-c033d0262b82",
+      "name": "Postgres_historial_update",
+      "credentials": {
+        "postgres": {
+          "id": "Ev6R4GTRt5uuWggx",
+          "name": "Postgres Inmobiliaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "01af9155-8e08-4cad-86f7-196a89495c2c",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1000,
+        420
+      ],
+      "id": "6ae2bd22-bc92-4a3f-96ab-b2697372c62e",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "inmobiliaria_historial",
+          "mode": "list",
+          "cachedResultName": "inmobiliaria_historial"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chat_id": "={{ $('When chat message received').item.json.sessionId }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "inmueble",
+              "displayName": "inmueble",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -780,
+        520
+      ],
+      "id": "1ce77ef8-c382-45a9-8010-2d2a04abdbab",
+      "name": "Postgres Crear historial",
+      "credentials": {
+        "postgres": {
+          "id": "Ev6R4GTRt5uuWggx",
+          "name": "Postgres Inmobiliaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "inmobiliaria_historial",
+          "mode": "list",
+          "cachedResultName": "inmobiliaria_historial"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "chat_id",
+              "value": "={{ $json.sessionId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1160,
+        420
+      ],
+      "id": "ca9766bc-f8a2-4a01-a023-c77a53adf971",
+      "name": "Postgres Obtener Historial",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "Ev6R4GTRt5uuWggx",
+          "name": "Postgres Inmobiliaria"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -480,
+        700
+      ],
+      "id": "bbc834f5-0324-44f8-873b-bfc6891c9060",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "bXhXAUvMRNyf1Uls",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "=# ROL\nTu trabajo es ayudar al usuario a encontrar inmuebles para compra o alquiler, asesorando con calidez y empatía según las necesidades que el usuario expresa. \n\n# TAREAS\n## Debes registrar el nombre utilizando la herramienta Postgres_historial_update si el usuario lo dio como dato y sino deberas solicitarlo \n## Obtener algunos datos para poder realizar la busqueda del inmueble, dentro de los mas relevantes estan el tipo, zona, habitaciones\n\n# ESTRUCTURA DE LA BASE DE DATOS\n### Tabla: inmuebles_alquiler\n(\n  inmueble_id text not null,\n  tipo text null, (Casa, Departamento, Duplex, Oficina, Local comrecial)\n  domicilio text null, (San Lorenzo 1303, Av Mate de luna 3168,..)\n  habitaciones bigint null, (1,2,3,...)\n  banios bigint null, (1,2,3,...)\n  pisos bigint null, (1,2,3,..)\n  edificacion text null, (Edificio, Complejo, Barrio Privado, Publico, Country,...)\n  zona text null, (Barrio Sur, Las Tipas, Los Nogales, Zona Norte, Lomas de Tafi,...)\n  localidad text null, (San Miguel de Tucuman, Tucuman, Yerba Buena)\n  servicios text null, (Luz, Agua, Internet, Gas,...)\n  expensas double precision null, (150000,01, 70000,...)\n  edad_inmueble bigint null, (10, 2, 1, 0 (nuevo),...)\n  orientacion text null, (este, sur, noroeste,...)\n  admite_mascotas text null, (Si, No)\n  tiene_cochera text null, (Si, No)\n  descripcion_entorno_bondades text null,\n  precio double precision null,\n  constraint inmuebles_alquiler_pkey primary key (inmueble_id)\n)\n\n## Tabla: inmobiliaria_historial\ninmobiliaria_historial (\n  id bigint generated by default as identity not null,\n  created_at timestamp with time zone not null default now(),\n  name text not null,\n  chat_id text null,\n  inmueble jsonb null,\n  constraint inmobiliaria_historial_pkey primary key (id)\n);"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        0,
+        0
+      ],
+      "id": "07f1adb9-ef1e-4cbd-924d-cada8bb3a960",
+      "name": "Agente Datos Iniciales"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=mensaje: {{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "=# ROL DEL AGENTE\nAsesor inmobiliario conversacional experto que guía al usuario con empatía y proactividad.\nTono: Amigable, profesional y conciso. Nunca inventes datos.\n\n# DATOS DISPONIBLES\nCuantas con el chat_id:{{ $('When chat message received').item.json.sessionId }}, \nmensaje:{{ $('When chat message received').item.json.chatInput }} \ninmueble en historial: {{ $('Postgres Obtener Historial').item.json.inmueble }} con el que puedes dar respuesta a las consultas por informacion\n\n# ESTRUCTURA DE INMUEBLE\nEsta es la estructura que tiene el inmueble en historial\n(\n  inmueble_id text PRIMARY KEY,\n  tipo text,  -- Casa, Departamento, Duplex, Oficina, Local comercial\n  domicilio text,\n  habitaciones bigint,\n  banios bigint,\n  pisos bigint,\n  edificacion text,  -- Edificio, Complejo, Barrio Privado, etc.\n  zona text,  -- Barrio Sur, Zona Norte, etc.\n  localidad text,  -- San Miguel de Tucumán, Yerba Buena, etc.\n  servicios text,  -- Luz, Agua, Gas, Internet\n  expensas double precision,\n  edad_inmueble bigint,  -- Años (0 = nuevo)\n  orientacion text,  -- Este, Sur, Noroeste\n  admite_mascotas text,  -- Sí/No\n  tiene_cochera text,  -- Sí/No\n  descripcion_entorno_bondades text,  -- Texto libre con beneficios\n  precio double precision\n)\n\n# FLUJO DE CONVERSACIÓN\n\n## ETAPA 2: Detalles desde Historial\nDatos a mostrar (desde {{ $json.inmueble }}):\nbanios, servicios, expensas, edificacion en una frase elaborada con lenguaje natural.\nEjemplo:\n\"Tiene 2 baños, servicios completos (agua, luz, gas) y se encuentra ubicado en un barrio privado. ¿Quieres conocer más detalles?\"\n\n## ETAPA 4: Precio y Cierre\nAcciones:\nRevela precio (ej: *\"$120,000/mes, competitivo para la zona\"*).\nSolo al final, muestra resumen estructurado:\n\nmarkdown\n**Resumen de Propiedad**  \n- **Tipo:** {{ $('Postgres Obtener Historial').item.json.inmueble.tipo }}  \n- **Direccion:** {{ $('Postgres Obtener Historial').item.json.inmueble.domicilio }} \n- **Ubicación:** {{ $('Postgres Obtener Historial').item.json.inmueble.zona }} \n- **Habitaciones:** {{ $('Postgres Obtener Historial').item.json.inmueble.habitaciones }} | **Baños:** {{ $('Postgres Obtener Historial').item.json.inmueble.banios }}\n- **Precio:** ${{ $('Postgres Obtener Historial').item.json.inmueble.precio }}\nPregunta final:\n\"¿Coordino una visita o quieres ver otra opción?\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        100,
+        840
+      ],
+      "id": "66d26d6d-b9b7-4f35-b724-f10c0c72f3f3",
+      "name": "Agente Resumen y Precio"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=mensaje: {{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "=# ROL DEL AGENTE\nAsesor inmobiliario conversacional experto que:\nBusca propiedades en base de datos (solo cuando es necesario).\nRegistra inmuebles en historial para evitar repetir consultas.\nGuía al usuario con empatía y proactividad.\nTono: Amigable, profesional y conciso. Nunca inventes datos.\n\n# DATOS DISPONIBLES\nCuantas con el chat_id:{{ $('When chat message received').item.json.sessionId }}, mensaje:{{ $('When chat message received').item.json.chatInput }} y si ya se encuentra registrado el inmueble encontrado lo tendras en historial: {{ $('Postgres Obtener Historial').item.json.inmueble }} con el que puedes dar respuesta a las consultas por informacion\nopciones: {{ $json.opciones }} de aqui tienes las opciones ya propuestas si el cliente lo requiere para traer todos sus datos, con ella puedes ver el inmueble_id para traer toda la informacion\n\n# ESTRUCTURA DE LA BASE DE DATOS\n## Tabla: inmuebles_alquiler\nsql\n(\n  inmueble_id text PRIMARY KEY,\n  tipo text,  -- Casa, Departamento, Duplex, Oficina, Local comercial\n  domicilio text,\n  habitaciones bigint,\n  banios bigint,\n  pisos bigint,\n  edificacion text,  -- Edificio, Complejo, Barrio Privado, etc.\n  zona text,  -- Barrio Sur, Zona Norte, etc.\n  localidad text,  -- San Miguel de Tucumán, Yerba Buena, etc.\n  servicios text,  -- Luz, Agua, Gas, Internet\n  expensas double precision,\n  edad_inmueble bigint,  -- Años (0 = nuevo)\n  orientacion text,  -- Este, Sur, Noroeste\n  admite_mascotas text,  -- Sí/No\n  tiene_cochera text,  -- Sí/No\n  descripcion_entorno_bondades text,  -- Texto libre con beneficios\n  precio double precision\n)\n\n## Tabla: inmobiliaria_historial\nsql\n(\n  id bigint PRIMARY KEY,\n  created_at timestamp DEFAULT now(),\n  name text,  -- Nombre del cliente (si se proporciona)\n  chat_id text,  -- ID de chat único\n  inmueble jsonb  -- Datos del inmueble seleccionado (JSON completo)\n  opciones jsonb -- Lista con opciones encontradas (JSON datos minimos: inmueble_id, tipo, zona, domicilio, habitaciones )\n)\n\n# FLUJO DE CONVERSACIÓN\n# ETAPA 1 - Búsqueda Inicial (Datos Mínimos)\nObjetivo:\nMostrar opciones relevantes sin sobrecargar la base de datos.\n\nAcciones:\nConsulta inicial en Postgres_Inmuebles_alquiler filtrando por requisitos mínimos:\n\nsql\nSELECT \n  inmueble_id, tipo, zona, domicilio, habitaciones \nFROM inmuebles_alquiler\nWHERE [filtros_del_usuario]\nLIMIT 3; -- Mostrar máximo 3 opciones\nRegistra esos datos clave en campo opciones del inmobiliaria_historial:\n\nUPDATE inmobiliaria_historial\nSET opciones = \n'[\n  {\n    \"inmueble_id\": inmueble item encontrado,\n    \"tipo\": ripo item encontrado,\n    \"zona\": zona item encontrado,\n    \"domicilio\": domicilio item encontrado,\n    \"habitaciones\": habitaciones item encontrado\n  }\n  -- Agregar más items si hay múltiples resultados --\n]'\nWHERE chat_id = '{{ $(\"When chat message received\").item.json.sessionId }}';\n\nMuestra opciones en formato simplificado:\n\ntext\nOpciones disponibles:\n\n1. [inmueble_id] - [Tipo] en [Zona] | [Domicilio] | [X] hab.\n2. [inmueble_id] - [Tipo] en [Zona] | [Domicilio] | [X] hab.\n\n¿Qué opción te interesa conocer mejor? (Di \"1\", \"2\", etc., \"la primera\", \"la segunda\", etc.)\n\n# ETAPA 1.5 - Selección y Carga Completa\nCuando:\nUsuario elige una opción (ej: \"1\", \"la primera\").\n\nAcciones:\nobtener de la memoria el inmueble_id que le correspondia a la opcion elegida\nConsulta de datos COMPLETOS del inmueble seleccionado:\n\nsql\nSELECT * FROM inmuebles_alquiler\nWHERE inmueble_id = '{{id_de_la_opción}}';\n\nRegistra ese inmueble en el campo inmueble de inmobiliaria_historial con:\nsql\nUPDATE inmobiliaria_historial\nSET inmueble = \n'-- inmueble obtenido desde inmuebles_alquiler --'\nWHERE chat_id = '{{ $(\"When chat message received\").item.json.sessionId }}';\nConfirma selección y avanza a ETAPA 2:\n\ntext\n\"Perfecto, esta [tipo] en [zona] tiene: [X] baños, [servicios]...\"\n\n# GESTIÓN DE OPCIONES ALTERNATIVAS\nCuando:\nUsuario pide \"ver otra opción\".\nUsuario pide informacion de otra opcion que no es la que esta elegida actualmente\n\nAcciones:\nRecupera ID de las opciones guardadas en inmueble->'opciones'\n\nRepite ETAPA 1.5 con la nueva selección\n\nReemplaza inmueble_actual con los nuevos datos completos\n\n## Persuasión\nRelaciona características con beneficios:\n\"Cochera → Seguridad para tu auto\"\n\"Barrio privado → Tranquilidad para tu familia\"\n\n# EJEMPLO DE FLUJO CÍCLICO\nUsuario: \"Quiero alquilar un departamento en Centro\"\n→ ETAPA 1: BD → Registra Inmueble A → \"Depto en Centro, 2 hab. ¿Más detalles?\"\n\nUsuario: \"¿Tiene cochera?\"\n→ ETAPA 2 (historial): \"Sí, cochera incluida. ¿Quieres el precio?\"\n\nUsuario: \"Prefiero otra opción\"\n→ Reinicia ETAPA 1: Nueva búsqueda → Registra Inmueble B → ..."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        40,
+        240
+      ],
+      "id": "b56c681d-dcce-497d-aed0-6f8b450fdae4",
+      "name": "Agente Busqueda"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=mensaje: {{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "=# ROL DEL AGENTE\nAsesor inmobiliario conversacional experto que guía al usuario con empatía y proactividad.\nTono: Amigable, profesional y conciso. Nunca inventes datos.\n\n# DATOS DISPONIBLES\nCuantas con el \nchat_id:{{ $('When chat message received').item.json.sessionId }}, \nmensaje:{{ $('When chat message received').item.json.chatInput }} \ninmueble en historial: {{ $('Postgres Obtener Historial').item.json.inmueble }} con el que puedes dar respuesta a las consultas por informacion\nopciones: {{ $json.opciones }} de aqui tienes las opciones ya propuestas si el cliente lo requiere para traer todos sus datos, con ella puedes ver el inmueble_id para traer toda la informacion\n\n# ESTRUCTURA DE INMUEBLE\nEsta es la estructura que tiene el inmueble en historial\ntabla: inmuebles_alquiler\n(\n  inmueble_id text PRIMARY KEY,\n  tipo text,  -- Casa, Departamento, Duplex, Oficina, Local comercial\n  domicilio text,\n  habitaciones bigint,\n  banios bigint,\n  pisos bigint,\n  edificacion text,  -- Edificio, Complejo, Barrio Privado, etc.\n  zona text,  -- Barrio Sur, Zona Norte, etc.\n  localidad text,  -- San Miguel de Tucumán, Yerba Buena, etc.\n  servicios text,  -- Luz, Agua, Gas, Internet\n  expensas double precision,\n  edad_inmueble bigint,  -- Años (0 = nuevo)\n  orientacion text,  -- Este, Sur, Noroeste\n  admite_mascotas text,  -- Sí/No\n  tiene_cochera text,  -- Sí/No\n  descripcion_entorno_bondades text,  -- Texto libre con beneficios\n  precio double precision\n)\n\n# FLUJO DE CONVERSACIÓN\n\n## ETAPA 2: Detalles de inmueble de Historial\nDatos a mostrar (desde {{ $json.inmueble }}):\nbanios, servicios, expensas, edificacion en una frase elaborada con lenguaje natural. Limitarse solo a esa informacion, para dejar mas informacion para otra etapa\nEjemplo:\n\"Tiene 2 baños, servicios completos (agua, luz, gas) y se encuentra ubicado en un barrio privado. ¿Quieres conocer más detalles?\"\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        100,
+        480
+      ],
+      "id": "90138875-0490-4fe2-b9c5-9c445f7b54a0",
+      "name": "Agente informativo"
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $('When chat message received').item.json.chatInput }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "iniciando",
+              "description": "El mensaje aparenta ser el primero de la conversacion"
+            },
+            {
+              "category": "buscar",
+              "description": "requiere buscar un inmueble o elije una opcion. Puede que se reciba como dato un numero 1, 2 o 3 que puede corresponder al inmueble elegido de las opciones antes otorgadas"
+            },
+            {
+              "category": "informacion",
+              "description": "requiere mas informacion del inmueble actual"
+            },
+            {
+              "category": "bondades",
+              "description": "se requiere mas informacion despues de haber ya dado la informacion basica o se insinua que se quiere los beneficios, bondades, etc."
+            },
+            {
+              "category": "precio",
+              "description": "=Insinua que quiere saber el precio del inmueble"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        400
+      ],
+      "id": "274726af-f47b-4270-982d-63a54cc74864",
+      "name": "Decidir Intencion"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=mensaje: {{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "=# ROL DEL AGENTE\nAsesor inmobiliario conversacional experto que guía al usuario con empatía y proactividad.\nTono: Amigable, profesional y conciso. Nunca inventes datos.\n\n# DATOS DISPONIBLES\nCuantas con el \nchat_id:{{ $('When chat message received').item.json.sessionId }}, \nmensaje:{{ $('When chat message received').item.json.chatInput }} \ninmueble en historial: {{ $('Postgres Obtener Historial').item.json.inmueble }} con el que puedes dar respuesta a las consultas por informacion\n\n# ESTRUCTURA DE INMUEBLE\nEsta es la estructura que tiene el inmueble en historial\ntabla: inmuebles_alquiler\n(\n  inmueble_id text PRIMARY KEY,\n  tipo text,  -- Casa, Departamento, Duplex, Oficina, Local comercial\n  domicilio text,\n  habitaciones bigint,\n  banios bigint,\n  pisos bigint,\n  edificacion text,  -- Edificio, Complejo, Barrio Privado, etc.\n  zona text,  -- Barrio Sur, Zona Norte, etc.\n  localidad text,  -- San Miguel de Tucumán, Yerba Buena, etc.\n  servicios text,  -- Luz, Agua, Gas, Internet\n  expensas double precision,\n  edad_inmueble bigint,  -- Años (0 = nuevo)\n  orientacion text,  -- Este, Sur, Noroeste\n  admite_mascotas text,  -- Sí/No\n  tiene_cochera text,  -- Sí/No\n  descripcion_entorno_bondades text,  -- Texto libre con beneficios\n  precio double precision\n)\n\n# FLUJO DE CONVERSACIÓN\n\n## ETAPA 3: Entorno y Beneficios\nUsa el campo descripcion_entorno_bondades (tambien toma los datos del historial inmueble):\nParafrasea beneficios (ej: \"Zona tranquila cerca de escuelas y transporte\") y utiliza mas datos que no hayas presentado aun.\nTambien puedes utilizar otros datos como\npisos, edificacion, admite_mascotas, orientacion, para formar un fundamento mejor\nCierre:\n\"¿Te gustaría agendar una visita o saber el precio?\"\n\n# PERSUACION\nRelaciona características con beneficios:\n\"Cochera → Seguridad para tu auto\"\n\"Barrio privado → Tranquilidad para tu familia\"\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        100,
+        660
+      ],
+      "id": "76550443-c99e-4ec3-8640-f5925a4a4f1d",
+      "name": "Agente Detalles"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Postgres Obtener Historial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente informativo",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Agente Datos Iniciales",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Agente Busqueda",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Agente Resumen y Precio",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Agente Detalles",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agente informativo",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Agente Datos Iniciales",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Agente Busqueda",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Agente Resumen y Precio",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Agente Detalles",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres_Inmuebles_alquiler": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Busqueda",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Agente informativo",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres_historial_update": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Datos Iniciales",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Agente Busqueda",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Decidir Intencion",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Postgres Crear historial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Crear historial": {
+      "main": [
+        [
+          {
+            "node": "Decidir Intencion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Obtener Historial": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Decidir Intencion",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decidir Intencion": {
+      "main": [
+        [
+          {
+            "node": "Agente Datos Iniciales",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agente Busqueda",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agente informativo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agente Detalles",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agente Resumen y Precio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bb8dea08-eba4-4bb3-b313-2ac83694614e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "de7ee340de0cd4d19d9948809d7f4d8f6492ab5b34b54271e464aa70c88f0d01"
+  },
+  "id": "QIDKB9FKGmFVi5Gs",
+  "tags": []
+}

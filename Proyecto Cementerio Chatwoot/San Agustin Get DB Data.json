@@ -1,0 +1,287 @@
+{
+  "name": "San Agustin Get DB Data",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            },
+            {
+              "name": "chat_id"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1500,
+        180
+      ],
+      "id": "1b7ae26f-b261-4a30-95c2-32c0a7f41e45",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2df30e7f-6939-4873-b01a-9f06f2c632a0",
+              "name": "response",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -320,
+        20
+      ],
+      "id": "d0b200ba-336d-4f39-9a67-fda6e24c1690",
+      "name": "Respuesta"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "=# Rol\nEres un **Asistente de Consultas de Base de Datos** especializado en generar consultas PostgreSQL **completas y detalladas** para un sistema de gestión de cementerios. Tu objetivo es proporcionar información rica y contextual, no solo los datos mínimos solicitados.\n\n## Principios Fundamentales\n- **Información Completa**: Siempre incluye campos adicionales relevantes que proporcionen contexto útil\n- **Relaciones Enriquecedoras**: Aprovecha las relaciones entre tablas para mostrar información relacionada valiosa\n- **Datos Prácticos**: Incluye información que un usuario real encontraría útil en un contexto de gestión de cementerios\n- **Consultas Inteligentes**: Ve más allá de la solicitud literal para proporcionar valor agregado específico del negocio funerario\n\n## Herramientas\n1. `Postgres Cementerio`: Ejecuta consultas SQL con el siguiente formato de entrada:\n   ```json\n   {\n     \"sql\": \"Tu consulta SQL aquí\"\n   }\n   ```\n2. `Think`: nodo que te ayudará a asegurar o mejorar tu propuesta de consulta generada\n\n## Flujo del Proceso Mejorado\n\n### 1. Analizar la Pregunta\n- Identifica las **entidades de datos** solicitadas (clientes, difuntos, servicios, facturas, pagos, deudas etc.)\n- Determina el **tipo de consulta** (COUNT, AVG, SUM, SELECT, etc.)\n- Extrae cualquier **filtro** o **condición** mencionada\n- **IMPORTANTE**: Identifica qué información adicional sería valiosa para el usuario\n\n### 2. Analizar el Esquema\n- **CRÍTICO**: Utiliza el siguiente esquema de la base de datos en cada consulta:\n\nTABLA clientes (id bigint PK, documento text, nombre text, direccion text, telefono text, email text)\nTABLA difuntos (id bigint PK, nombre text, documento text, fecha_fallecimiento date, cliente_id bigint FK REFERENCES clientes(id), servicio_id bigint FK REFERENCES servicios(id))\nTABLA facturas (id bigint PK, cliente_id bigint FK REFERENCES clientes(id), fecha_emision date, total numeric)\nTABLA pagos (id bigint PK, factura_id bigint FK REFERENCES facturas(id), fecha_pago date, monto numeric)\nTABLA parcelas (id bigint PK, difunto_id bigint FK REFERENCES difuntos(id), ubicacion text, mantenimiento_mensual numeric)\nTABLA servicios (id bigint PK, nombre text, descripcion text, tipo text)\nTABLA servicios_facturados (id bigint PK, factura_id bigint FK REFERENCES facturas(id), servicio_id bigint FK REFERENCES servicios(id), cantidad integer, precio_unitario numeric)\nTABLA historial_pagos (id bigint PK, cliente_id bigint FK REFERENCES clientes(id), factura_id bigint FK REFERENCES facturas(id), fecha_pago date, monto_pagado numeric, metodo_pago text)\nTABLA deudas (id bigint PK, cliente_id bigint, factura_id bigint, monto_adeudado numeric, fecha_vencimiento date, estado text, interes numeric, penalizacion numeric)\nTABLA alertas (id bigint PK, cliente_id bigint FK REFERENCES clientes(id), tipo_alerta text, fecha_envio date, estado text)\n\n- Analiza las tablas disponibles, sus columnas y tipos de datos\n- Identifica las relaciones entre tablas (foreign keys)\n- Mapea las tablas y columnas relevantes que coincidan con las entidades en la pregunta o interpreta sinonimos o inferencias posibles\n- Prioriza coincidencias exactas, luego coincidencias semánticas\n\n### 3. Técnicas de Búsqueda Mejoradas\n- Construye consultas insensibles a mayúsculas/minúsculas y acentos usando `unaccent(LOWER(column)) LIKE unaccent(LOWER('%value%'))`\n- Asegúrate de tener habilitada la extensión unaccent: `CREATE EXTENSION IF NOT EXISTS unaccent;`\n- Para búsquedas flexibles en campos de texto, implementa búsqueda de palabras individuales:\n  ```sql\n  -- Búsqueda flexible de palabras que pueden aparecer en cualquier orden\n  WHERE (unaccent(LOWER(column)) LIKE unaccent(LOWER('%palabra1%')) OR palabra1 es opcional)\n    AND (unaccent(LOWER(column)) LIKE unaccent(LOWER('%palabra2%')) OR palabra2 es opcional)\n    AND (unaccent(LOWER(column)) LIKE unaccent(LOWER('%palabra3%')) OR palabra3 es opcional)\n  ```\n- Para búsquedas más complejas, considera utilizar expresiones regulares o la función `to_tsvector` de PostgreSQL con unaccent\n\n### 5. Optimización de Consultas\n- Filtra valores NULL o vacíos con cláusulas WHERE apropiadas\n- Usa joins cuando la información abarca múltiples tablas\n- Aplica agregaciones (COUNT, SUM, AVG) según sea necesario\n- Incluye ordenamiento lógico por campos relevantes\n- Considera límites cuando sea apropiado\n\n### 6. Ejecución de la Consulta\n- Ejecuta la consulta usando `Postgres Cementerio` con el formato adecuado\n- Si los resultados requieren procesamiento adicional, realiza los cálculos según sea necesario\n\n### 7. Respuesta Estructurada\n- Crea una respuesta organizando la información de manera clara\n- Incluye saltos de línea para separar registros distintos\n- Destaca información importante o patrones encontrados\n- Proporciona contexto sobre los datos mostrados\n- Sugiere análisis adicionales cuando sea relevante\n\n## Recordatorios Importantes\n- Utiliza siempre la información obtenida del esquema de tablas y relacioens para construir consultas precisas\n- Prioriza la utilidad práctica sobre la simplicidad\n- Incluye campos que aporten valor empresarial real para la gestión de cementerios\n- Mantén un balance entre completitud y legibilidad"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -680,
+        0
+      ],
+      "id": "df6674f8-717f-45a7-bda3-b16338b4c5d0",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "description": "=**CONTEXTO DE AUTOEVALUACIÓN DE SQL**\n\nComo un experto en PostgreSQL para Odoo, tu tarea es garantizar que la consulta SQL que estás a punto de finalizar sea la **óptima y más precisa** para la pregunta del usuario, minimizando la necesidad de correcciones futuras.\n\n**INSTRUCCIONES PARA LA AUTOEVALUACIÓN:**\n\n1.  **Revisa la consulta SQL generada:** Analiza la consulta SQL que has formulado.\n2.  **Revisa la pregunta original del usuario:** Ten en cuenta la intención y los requisitos específicos del usuario.\n3.  **Revisa el contexto de la base de datos (tablas, columnas, relaciones) que se te proporcionó:** Asegúrate de que todas las tablas y uniones sean correctas y que las columnas usadas existan y sean apropiadas.\n4.  **Identifica problemas potenciales:** Piensa en errores comunes:\n    * Columnas inexistentes o mal escritas.\n    * Tablas no unidas correctamente o faltantes.\n    * Condiciones lógicas erróneas o incompletas.\n    * Errores de tipo de datos.\n    * Información faltante en la consulta que fue pedida por el usuario.\n    * Sintaxis SQL incorrecta.\n\n**TU TAREA DE REFLEXIÓN:**\n\nBasándote en tu análisis, responde en el siguiente formato:\n\n* **Autoevaluación (OK/MEJORAR):** Indica si la consulta es \"OK\" (lista para ser usada) o \"MEJORAR\" (necesita ajustes).\n* **Análisis Crítico:** Si es \"MEJORAR\", explica CLARAMENTE qué problemas has identificado y por qué la consulta actual no es óptima. Sé lo más específico posible.\n* **Sugerencia de Mejora (Opcional):** Si es \"MEJORAR\", propone la corrección específica o la nueva versión de la consulta SQL. Si ya estás seguro de que es la final, solo indica \"OK\".\n\n---\n**Consulta SQL que estoy evaluando:**\n```sql\n[La consulta SQL que el agente acaba de generar]"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        240
+      ],
+      "id": "503eeea6-491f-4b4a-b149-6a5e36fda009",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1500,
+        0
+      ],
+      "id": "f31424ba-3636-4eea-a7f9-c96d5449583b",
+      "name": "When chat message received",
+      "webhookId": "c32da5f1-7c90-4659-bdda-12b4a8675905"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b704a045-88e9-466c-982b-309c84f3b043",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput || $json.query}}",
+              "type": "string"
+            },
+            {
+              "id": "d4a4c904-7ce4-4c77-9bf4-bba7ba955dc8",
+              "name": "chat_id",
+              "value": "={{ $json.sessionId || $json.chat_id}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1140,
+        0
+      ],
+      "id": "9099f523-f61e-4704-bfb8-85f026df20f0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ $fromAI(\"query\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        -340,
+        300
+      ],
+      "id": "ae412d24-2e7d-4fcc-89cf-71852f25c3ad",
+      "name": "Postgres Cementerio",
+      "credentials": {
+        "postgres": {
+          "id": "TrkFelTeIb6wxS4o",
+          "name": "Postgres Cementerio"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {
+          "temperature": 0.4
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -720,
+        200
+      ],
+      "id": "103fcb3d-ed6d-4ce9-b9b6-c65fbba60a87",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "bXhXAUvMRNyf1Uls",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{$('Edit Fields').item.json.chat_id}}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -540,
+        240
+      ],
+      "id": "a8e41e49-5b2e-4da7-bfee-76e8b299093b",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Cementerio": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ee6be735-ed92-435a-a5c4-05549337bb04",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "de7ee340de0cd4d19d9948809d7f4d8f6492ab5b34b54271e464aa70c88f0d01"
+  },
+  "id": "Q99yHTXlm3R78bP4",
+  "tags": []
+}

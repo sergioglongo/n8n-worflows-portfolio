@@ -1,0 +1,86 @@
+{
+  "name": "Edumovil Schema",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    t.schemaname,\n    t.tablename,\n    c.column_name,\n    c.data_type\nFROM \n    pg_catalog.pg_tables t\nJOIN \n    information_schema.columns c\n    ON t.schemaname = c.table_schema\n    AND t.tablename = c.table_name\nWHERE \n    t.schemaname = 'public'\nORDER BY \n    t.tablename, c.ordinal_position;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        240,
+        0
+      ],
+      "id": "ba5417ad-f95b-4c3d-a8d3-5b410d998e99",
+      "name": "Postgres Edumovil Schema",
+      "credentials": {
+        "postgres": {
+          "id": "PpuTITAzkPG2O6aB",
+          "name": "Postgres Edumovil"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function transformSchema(input) {\n    const tables = {};\n    \n    input.forEach(({ json }) => {\n        if (!json) return;\n        \n        const { tablename, schemaname, column_name, data_type } = json;\n        \n        if (!tables[tablename]) {\n            tables[tablename] = { schema: schemaname, columns: [] };\n        }\n        tables[tablename].columns.push(`${column_name} (${data_type})`);\n    });\n    \n    return Object.entries(tables)\n        .map(([tablename, { schema, columns }]) => `Table ${tablename} (Schema: ${schema}) has columns: ${columns.join(\", \")}`)\n        .join(\"\\n\\n\");\n}\n\n// Example usage\nconst input = $input.all();\nconsole.log(input);\nconst transformedSchema = transformSchema(input);\n\nreturn { data: transformedSchema };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        0
+      ],
+      "id": "009a1a48-7907-420e-841c-27fa1be792d4",
+      "name": "Code Schema data Format"
+    },
+    {
+      "parameters": {},
+      "id": "c427a2e4-f102-4310-911e-0fa8fa25f3dc",
+      "name": "Execute Workflow Schema",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Postgres Edumovil Schema": {
+      "main": [
+        [
+          {
+            "node": "Code Schema data Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Schema": {
+      "main": [
+        [
+          {
+            "node": "Postgres Edumovil Schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fd5c46e4-f6f2-47bd-8125-1d57120890b6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "de7ee340de0cd4d19d9948809d7f4d8f6492ab5b34b54271e464aa70c88f0d01"
+  },
+  "id": "MsjgQxTGE8OLDN4N",
+  "tags": []
+}

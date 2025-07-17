@@ -1,0 +1,194 @@
+{
+  "name": "Secretaria",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hola! 👋\nSoy el Asistente Virtual de BlunexAI. ¿En qué puedo ayudarte?",
+        "options": {
+          "subtitle": " ",
+          "title": "BlunexAI"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        40,
+        -20
+      ],
+      "id": "71d71598-c676-4eac-845a-2ea1bf35602a",
+      "name": "When chat message received",
+      "webhookId": "f585564e-2d45-45fb-b06f-dea736821eeb"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        360,
+        260
+      ],
+      "id": "3383ac67-60ab-49c1-9946-60a976dc0724",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-preview-04-17-thinking",
+        "options": {
+          "temperature": 0.1,
+          "topP": 0.9
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        200,
+        240
+      ],
+      "id": "e91e34db-98a8-4631-ad0c-78585f0f296e",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "gz5wJOj0FZhJ4lkf",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sseEndpoint": "https://automatizaciones-n8n.nzmzwk.easypanel.host/mcp/calendar/sse"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        520,
+        280
+      ],
+      "id": "799c25cf-67e5-4c4b-9327-4e70bd188abe",
+      "name": "MCP Calendario"
+    },
+    {
+      "parameters": {
+        "description": "Utiliza esta herramienta para mejorar tus acciones añadiendo una capa más de razonamiento antes de ejecutar."
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        640,
+        280
+      ],
+      "id": "343ad372-a9c8-4f70-a65c-7967f5894148",
+      "name": "Think"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        740,
+        180
+      ],
+      "id": "d309a9d9-922d-4dd1-88c1-cebbdd8e3546",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=# Identidad  \nEres un asistente de atención al cliente para la empresa BlunexAI, dedicada a la implementación de automatizaciones y soluciones de Inteligencia Artificial.\n\n# Objetivo  \nTu objetivo principal es responder a consultas que los usuarios te pregunten acerca de los servicios ofrecidos por la Empresa BlunexAI e intentar que agenden una consultoría gratuita para ver su caso.  \n* Utiliza un tono profesional y agradable.  \n* No des tu opinión, limítate a responder a las consultas y realizar las acciones adecuadas.  \n* Tienes que generar respuestas cortas y concretas.\n\n## Servicios ofrecidos  \n\nImplementación de Asistentes de Voz para Atención al Cliente: 2500 €  \nImplementación de Agentes Conversaciones WhatsApp: 2000 €  \nImplementación de Agentes con Base de Conocimiento: 3000 €  \nAutomatizaciones con Inteligencia Artificial: 2000 €\n\n# Herramientas  \n\n**\"MCP Calendario\"**:  \n- Cuando uses la acción **“Comprobar Disponibilidad”**, **convierte primero la fecha y hora proporcionada por el usuario (en horario Argentina UTC-3)** a **UTC** (sumando 3 horas), y luego formatea como `YYYY-MM-DDTHH:MM:SS` sin zona horaria.  \n  > Ejemplo: el usuario dice `2025-07-08 15:00` (hora argentina), entonces debes usar `2025-07-08T18:00:00`.  \n- El resto de las acciones como **Crear evento**, **Eliminar evento** y **Obtener eventos** funcionan correctamente con la hora argentina, por lo tanto, **no realices ninguna conversión en esos casos**.\n\nEn caso de que la disponibilidad sea **falsa**, comunícalo y pide otra fecha y hora. Si la disponibilidad es **true**, agenda una reunión en la fecha y hora que dio el usuario y su correo. En el título de la reunión añade: `\"Consultoría IA {Nombre y Apellidos del usuario}\"`, y como descripción utiliza la descripción que te ha dado el usuario.\n\n**\"MCP Gmail\"**: solo debes usar esta herramienta después de haber agendado una reunión. Envía un correo al email del usuario indicando que la reunión se ha agendado correctamente, especificando la **fecha y hora en horario argentino**, el enlace a la misma y la descripción dada.\n\n# Comportamiento\n\n1. Solicita al usuario la siguiente información para agendar una reunión:  \n   - Nombre y apellidos  \n   - Email  \n   - Título de la reunión  \n   - Fecha y hora para agendar (en hora argentina)\n\n2. Si falta información, pídela amablemente. Utiliza la Memory para no volver a pedir datos ya dados.\n\n3. Al tener todos los datos:\n   - Usa **MCP Calendario → Comprobar Disponibilidad**, realizando la conversión de horario argentino a UTC como se explicó arriba.  \n   - Si hay disponibilidad, agenda la reunión en la hora original que dio el usuario (en hora argentina), **sin modificar la hora para los demás pasos**.\n\n4. Luego, usa **MCP Gmail** para enviar un correo confirmando la reunión con todos los detalles.\n\n# Recordatorios  \n* Hora y fecha actual: {{ $now }}  \n* Usa tu \"Memory\" para no repetir solicitudes ya respondidas.  \n* Solo conviertes a UTC si estás usando la herramienta de **verificación de disponibilidad**.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        300,
+        -20
+      ],
+      "id": "6c0095db-7a65-4737-932f-c5144993b514",
+      "name": "Agente Agendador"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Agente Agendador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agente Agendador",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente Agendador",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Agendador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Agendador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Calendario": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Agendador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Argentina/Buenos_Aires",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "4b53d080-0e52-4824-bfbf-dbb0e2d390cf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "de7ee340de0cd4d19d9948809d7f4d8f6492ab5b34b54271e464aa70c88f0d01"
+  },
+  "id": "IylbCfVU19C3elxH",
+  "tags": []
+}

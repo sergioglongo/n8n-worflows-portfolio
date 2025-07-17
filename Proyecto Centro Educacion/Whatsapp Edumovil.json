@@ -1,0 +1,940 @@
+{
+  "name": "Whatsapp Edumovil",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "evolutionapi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        820
+      ],
+      "id": "248d6978-1b19-4663-a11b-c11a0ac080b6",
+      "name": "Webhook",
+      "webhookId": "e880f871-6451-4a25-a1dd-9a25e2b671a3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9c0d0480-7825-4e5e-82fe-bfaef52aef9c",
+              "name": "instance.apikey",
+              "value": "=irAmyPzpNRMZeqtPFptaSTMH",
+              "type": "string"
+            },
+            {
+              "id": "2ecfed18-f31b-421a-b3a9-7775fcfd2a99",
+              "name": "message.message_id",
+              "value": "={{ $json.body.conversation.messages[0].id }}",
+              "type": "string"
+            },
+            {
+              "id": "5c3100b5-41e8-4d16-bf4b-14fc0db04845",
+              "name": "message.chat_id",
+              "value": "={{ $json.body.conversation.contact_inbox.contact_id }}",
+              "type": "string"
+            },
+            {
+              "id": "4be9b048-3bb5-4874-ad2d-ea6c383a8524",
+              "name": "message.content_type",
+              "value": "={{ $json.body.content_type }}",
+              "type": "string"
+            },
+            {
+              "id": "2b57108c-7a3d-495e-bede-54b44bbdee59",
+              "name": "message.content",
+              "value": "={{ $json.body.conversation.messages[0].content }}",
+              "type": "string"
+            },
+            {
+              "id": "4b80c96a-4924-401e-ba01-5691f7e453ef",
+              "name": "user.name",
+              "value": "={{ $json.body.account.name }}",
+              "type": "string"
+            },
+            {
+              "id": "1fa38451-f949-4c76-86f1-05d937089095",
+              "name": "body.conversation.id",
+              "value": "={{ $json.body.conversation.id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -400,
+        820
+      ],
+      "id": "d9530406-072f-4d31-9ed5-8414da3be832",
+      "name": "Normalizar Mensaje"
+    },
+    {
+      "parameters": {
+        "url": "={{ \"https://automatizaciones-chatwoot.nzmzwk.easypanel.host\" + $('Webhook').item.json.body.attachments[0].data_url.replace('http://https', '') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        600,
+        600
+      ],
+      "id": "60c73a27-6c9e-4baf-b015-54fbb0f12eda",
+      "name": "Get Audio 64"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Normalizar Mensaje').item.json.instance.server_url }}/chat/getBase64FromMediaMessage/{{ $('Normalizar Mensaje').item.json.instance.name }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('Normalizar Mensaje').item.json.instance.apikey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message.key.id",
+              "value": "={{ $('Normalizar Mensaje').item.json.message.message_id }}"
+            },
+            {
+              "name": "convertToMp4",
+              "value": "={{Boolean(false)}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        580,
+        780
+      ],
+      "id": "f98cc480-c14d-439f-b73f-dc667260bb8c",
+      "name": "Get Image"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base64",
+        "options": {
+          "mimeType": "={{ $json.mimetype }}"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        780
+      ],
+      "id": "71896a7e-21e1-4e30-9573-bbc79d7c7347",
+      "name": "Convert Image"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "text": "Describe brevemente la imagen",
+        "inputType": "base64",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        980,
+        780
+      ],
+      "id": "d2a2f6e1-6621-4a6a-b98f-802fd45ab828",
+      "name": "Ai Describe Imagen",
+      "credentials": {
+        "openAiApi": {
+          "id": "bXhXAUvMRNyf1Uls",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        900,
+        600
+      ],
+      "id": "414f7ac3-6faa-4a04-b85e-94390db2caa5",
+      "name": "AI transcribe",
+      "credentials": {
+        "openAiApi": {
+          "id": "bXhXAUvMRNyf1Uls",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c064ace7-cfa9-4616-b8de-b2a7e21882fa",
+              "name": "content",
+              "value": "=<audio>{{ $json.text }}</audio>",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1260,
+        600
+      ],
+      "id": "0b402c43-9166-4584-8ce8-f21791f7ab66",
+      "name": "Audio transcripto"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c064ace7-cfa9-4616-b8de-b2a7e21882fa",
+              "name": "content",
+              "value": "=<image>{{ $json.content }}</image>",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1140,
+        780
+      ],
+      "id": "cb5cc18d-75d9-4bda-8fb5-d8087c35ec94",
+      "name": "Imagen descripta"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c064ace7-cfa9-4616-b8de-b2a7e21882fa",
+              "name": "content",
+              "value": "=<text>{{ $('Normalizar Mensaje').item.json.message.content }}</text>",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        740,
+        980
+      ],
+      "id": "7e3e82b8-d623-4b40-aa4c-d99cf86bb379",
+      "name": "Texto recibido"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c064ace7-cfa9-4616-b8de-b2a7e21882fa",
+              "name": "content",
+              "value": "=invalido",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        740,
+        1180
+      ],
+      "id": "e5f3e33d-edd3-4d2f-9a98-cf1e3ebfb5ca",
+      "name": "Invalido"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook').item.json.body.content_type }}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "97dece2d-1256-4308-91d6-6e64ef8ca49f"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9f4aa042-7fba-4dd5-8321-260c97431533",
+                    "leftValue": "={{ $('Webhook').item.json.body.content_type }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2d688632-a0ee-4850-8237-6af8f8e59de6",
+                    "leftValue": "={{ $('Webhook').item.json.body.content_type }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Other"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        280,
+        780
+      ],
+      "id": "a027a4e7-d528-4cae-815e-cc560403a9a4",
+      "name": "Switch Tipo"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://automatizaciones-chatwoot.nzmzwk.easypanel.host/api/v1/accounts/1/conversations/{{ $('Normalizar Mensaje').item.json.body.conversation.id }}/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api_access_token",
+              "value": "SkoayGnq5Mk7yeGyM2CofEHm"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n\"content\": {{ JSON.stringify($json.output) }},\n\"message_type\":\"outgoing\",\n\"private\": false,\n\"sender\": { \"type\": \"bot\" }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        860
+      ],
+      "id": "addcc892-e55d-400c-9cbb-3ef5c2786825",
+      "name": "Respuesta a Chatwoot"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b3a80f1e-1bee-409c-914f-0927f2d598e0",
+              "name": "chat_input",
+              "value": "={{$json.content}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1400,
+        860
+      ],
+      "id": "8ea1cf71-5225-4dfe-8422-e293db4db3f5",
+      "name": "Mensaje"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "392f7d86-6a05-41df-933b-da45540fc2a6",
+              "leftValue": "={{ $('Webhook').item.json.body.conversation.messages[0].sender_type }}",
+              "rightValue": "Contact",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        20,
+        820
+      ],
+      "id": "6aa742ab-ef9f-44b1-ac2a-139bcf5e13ff",
+      "name": "If is Contact"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5a4e9437-09ed-4e91-9f14-8c15884a27b6",
+              "leftValue": "={{ $('Webhook').item.json.body.event }}",
+              "rightValue": "message_created",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -220,
+        820
+      ],
+      "id": "d63b9ac7-8307-4ee5-aa6f-6a39ab690bae",
+      "name": "If is Message Created"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        180,
+        1080
+      ],
+      "id": "881a1719-f911-4b6f-b08a-c1e106c4057a",
+      "name": "No es contacto"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        1080
+      ],
+      "id": "48687e78-ade6-4a49-a5d1-27fbaccecd5d",
+      "name": "No es nuevo mensaje"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://automatizaciones-n8n.nzmzwk.easypanel.host/webhook/edumovil",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "=chat_input",
+              "value": "={{ $json.chat_input }}"
+            },
+            {
+              "name": "chat_id",
+              "value": "={{ $('Normalizar Mensaje').item.json.message.chat_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1580,
+        860
+      ],
+      "id": "b0c2827a-240a-4dc6-b43e-a1d3cc56f244",
+      "name": "Consulta a DB Edumovil"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "automatizaciones-n8n.nzmzwk.easypanel.host",
+            "user-agent": "rest-client/2.1.0 (linux-musl x86_64) ruby/3.3.3p89",
+            "content-length": "2532",
+            "accept": "application/json",
+            "accept-encoding": "gzip;q=1.0,deflate;q=0.6,identity;q=0.3",
+            "content-type": "application/json",
+            "x-forwarded-for": "172.18.0.1",
+            "x-forwarded-host": "automatizaciones-n8n.nzmzwk.easypanel.host",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "d3eb19f3d898",
+            "x-real-ip": "172.18.0.1"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "account": {
+              "id": 2,
+              "name": "Longo"
+            },
+            "additional_attributes": {},
+            "content_attributes": {},
+            "content_type": "text",
+            "content": "dime quienes son los padres del alumno tiziano longo",
+            "conversation": {
+              "additional_attributes": {},
+              "can_reply": true,
+              "channel": "Channel::Api",
+              "contact_inbox": {
+                "id": 4,
+                "contact_id": 2,
+                "inbox_id": 1,
+                "source_id": "f1c9c931-b207-4566-a77f-d64011e7a723",
+                "created_at": "2025-07-04T16:18:44.600Z",
+                "updated_at": "2025-07-04T16:18:44.600Z",
+                "hmac_verified": false,
+                "pubsub_token": "TaAp8fXsKuTsRiNVR3Z5heuQ"
+              },
+              "id": 2,
+              "inbox_id": 1,
+              "messages": [
+                {
+                  "id": 147,
+                  "content": "dime quienes son los padres del alumno tiziano longo",
+                  "account_id": 2,
+                  "inbox_id": 1,
+                  "conversation_id": 2,
+                  "message_type": 0,
+                  "created_at": 1751670381,
+                  "updated_at": "2025-07-04T23:06:21.053Z",
+                  "private": false,
+                  "status": "sent",
+                  "source_id": "WAID:3F6F99B2668AB6E799B9",
+                  "content_type": "text",
+                  "content_attributes": {},
+                  "sender_type": "Contact",
+                  "sender_id": 2,
+                  "external_source_ids": {},
+                  "additional_attributes": {},
+                  "processed_message_content": "dime quienes son los padres del alumno tiziano longo",
+                  "sentiment": {},
+                  "conversation": {
+                    "assignee_id": null,
+                    "unread_count": 1,
+                    "last_activity_at": 1751670381,
+                    "contact_inbox": {
+                      "source_id": "f1c9c931-b207-4566-a77f-d64011e7a723"
+                    }
+                  },
+                  "sender": {
+                    "additional_attributes": {},
+                    "custom_attributes": {
+                      "activado": false,
+                      "desactivado": false
+                    },
+                    "email": null,
+                    "id": 2,
+                    "identifier": "5493816302170@s.whatsapp.net",
+                    "name": "Sergio",
+                    "phone_number": "+5493816302170",
+                    "thumbnail": "",
+                    "type": "contact"
+                  }
+                }
+              ],
+              "labels": [],
+              "meta": {
+                "sender": {
+                  "additional_attributes": {},
+                  "custom_attributes": {
+                    "activado": false,
+                    "desactivado": false
+                  },
+                  "email": null,
+                  "id": 2,
+                  "identifier": "5493816302170@s.whatsapp.net",
+                  "name": "Sergio",
+                  "phone_number": "+5493816302170",
+                  "thumbnail": "",
+                  "type": "contact"
+                },
+                "assignee": null,
+                "team": null,
+                "hmac_verified": false
+              },
+              "status": "open",
+              "custom_attributes": {},
+              "snoozed_until": null,
+              "unread_count": 1,
+              "first_reply_created_at": "2025-07-04T18:26:56.612Z",
+              "priority": null,
+              "waiting_since": 0,
+              "agent_last_seen_at": 1751669136,
+              "contact_last_seen_at": 1751666979,
+              "last_activity_at": 1751670381,
+              "timestamp": 1751670381,
+              "created_at": 1751645924
+            },
+            "created_at": "2025-07-04T23:06:21.053Z",
+            "id": 147,
+            "inbox": {
+              "id": 1,
+              "name": "Automatizaciones"
+            },
+            "message_type": "incoming",
+            "private": false,
+            "sender": {
+              "account": {
+                "id": 2,
+                "name": "Longo"
+              },
+              "additional_attributes": {},
+              "avatar": "",
+              "custom_attributes": {
+                "activado": false,
+                "desactivado": false
+              },
+              "email": null,
+              "id": 2,
+              "identifier": "5493816302170@s.whatsapp.net",
+              "name": "Sergio",
+              "phone_number": "+5493816302170",
+              "thumbnail": ""
+            },
+            "source_id": "WAID:3F6F99B2668AB6E799B9",
+            "event": "message_created"
+          },
+          "webhookUrl": "https://automatizaciones-n8n.nzmzwk.easypanel.host/webhook/evolutionapi",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalizar Mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar Mensaje": {
+      "main": [
+        [
+          {
+            "node": "If is Message Created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Audio 64": {
+      "main": [
+        [
+          {
+            "node": "AI transcribe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Image": {
+      "main": [
+        [
+          {
+            "node": "Convert Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Image": {
+      "main": [
+        [
+          {
+            "node": "Ai Describe Imagen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ai Describe Imagen": {
+      "main": [
+        [
+          {
+            "node": "Imagen descripta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI transcribe": {
+      "main": [
+        [
+          {
+            "node": "Audio transcripto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audio transcripto": {
+      "main": [
+        [
+          {
+            "node": "Mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Imagen descripta": {
+      "main": [
+        [
+          {
+            "node": "Mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Texto recibido": {
+      "main": [
+        [
+          {
+            "node": "Mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invalido": {
+      "main": [
+        [
+          {
+            "node": "Mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Tipo": {
+      "main": [
+        [
+          {
+            "node": "Get Audio 64",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Texto recibido",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Invalido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje": {
+      "main": [
+        [
+          {
+            "node": "Consulta a DB Edumovil",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If is Contact": {
+      "main": [
+        [
+          {
+            "node": "Switch Tipo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No es contacto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If is Message Created": {
+      "main": [
+        [
+          {
+            "node": "If is Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No es nuevo mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consulta a DB Edumovil": {
+      "main": [
+        [
+          {
+            "node": "Respuesta a Chatwoot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Argentina/Buenos_Aires",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "b41d3100-6500-4bb9-b10f-7e5a9bac770f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "de7ee340de0cd4d19d9948809d7f4d8f6492ab5b34b54271e464aa70c88f0d01"
+  },
+  "id": "YnTxfDlYOKiESVI5",
+  "tags": []
+}

@@ -1,0 +1,1049 @@
+{
+  "name": "InmobiliariaV4",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -860,
+        0
+      ],
+      "id": "4c3463da-7e28-4881-b543-f19a1f35e056",
+      "name": "When chat message received",
+      "webhookId": "d2bd060c-1b7b-41a4-ba80-a6010d257e61"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -200,
+        300
+      ],
+      "id": "b73f13d9-d8fe-489f-a191-c71494df1246",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "bXhXAUvMRNyf1Uls",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('When chat message received').item.json.sessionId }}",
+        "contextWindowLength": 7
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -80,
+        240
+      ],
+      "id": "2730fec9-daf5-4656-a62c-283f54823796",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "inmobiliaria_conversations",
+          "mode": "list",
+          "cachedResultName": "inmobiliaria_conversations"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "chat_id",
+              "value": "={{ $json.sessionId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -660,
+        0
+      ],
+      "id": "92c5b31d-5c03-4e6c-9f41-a28bd5afe10a",
+      "name": "Postgres",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "KNolEpC4USyN5Qef",
+          "name": "Supabase Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "01af9155-8e08-4cad-86f7-196a89495c2c",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -500,
+        0
+      ],
+      "id": "45ec88ed-56c4-484b-b1ab-a1ad1d0e4fd1",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "inmobiliaria_conversations",
+          "mode": "list",
+          "cachedResultName": "inmobiliaria_conversations"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chat_id": "={{ $('When chat message received').item.json.sessionId }}",
+            "current_stage": "new"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "current_property_id",
+              "displayName": "current_property_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "proposed_properties_ids",
+              "displayName": "proposed_properties_ids",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "current_stage",
+              "displayName": "current_stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "user_preferences",
+              "displayName": "user_preferences",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_updated_at",
+              "displayName": "last_updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -300,
+        80
+      ],
+      "id": "6154957d-e28f-4d16-9298-288bd76f9271",
+      "name": "Conversacion Nueva",
+      "credentials": {
+        "postgres": {
+          "id": "KNolEpC4USyN5Qef",
+          "name": "Supabase Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=mensaje: {{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "=🎭 ROL DEL AGENTE\nSos un agente inmobiliario conversacional experto. Tu trabajo es ayudar al usuario a encontrar inmuebles para compra o alquiler, asesorando con calidez y empatía según las necesidades que el usuario expresa. Tu estilo debe ser fluido y natural, integrando la información en frases completas y haciendo preguntas proactivas que guíen la conversación de ida y vuelta, anticipando las necesidades del usuario con la información que ya tienes. Siempre mantén un tono amigable, empático y proactivo, como si estuvieras conversando con el usuario en persona, evitando listas o puntos directos a menos que se te solicite explícitamente.\n\n🧰 HERRAMIENTAS DISPONIBLES\nObtener_Conversacion - obtiene los datos de contexto de la conversacion de manera actualizada\nObtener_Inmueble - herramienta que obtiene el o los inmuebles con la informacion para elaborar la respuesta para el cliente.\nRegistra nombre - registra el nombre del cliente\n\n# Obtener_Conversacion(session_id: string)\n## Descripción: Recupera el current_property_id, current_stage, proposed_properties_ids y user_preferences para una sesión dada, usando el session_id (que es el chat_id del usuario).\n\n## Retorna: Un objeto JSON con la estructura: {\"current_property_id\": integer | null, \"current_stage\": string | null, \"proposed_properties_ids\": array<integer> | null, \"user_preferences\": object | null}.\n\n### Ejemplo de retorno si existe: {\"current_property_id\": 123, \"current_stage\": \"ETAPA2_DETALLES\", \"proposed_properties_ids\": [123, 456], \"user_preferences\": {\"tipo\": \"casa\"}}\n\n### Ejemplo de retorno si no existe o es nuevo: {\"current_property_id\": null, \"current_stage\": null, \"proposed_properties_ids\": null, \"user_preferences\": null}\n\n# Obtener_Inmueble (session_id, message)\n## Descripción: Herramienta para obtener datos de propiedades y actualizar el contexto de la sesión. Esta herramienta tiene conocimiento interno de la estructura de la tabla inmobiliaria_inmuebles (incluyendo id, precio, habitaciones, zona, tipo, direccion, tipo_inmueble, cantidad_plantas, formato_residencial, metros_terreno, metros_construccion, tiene_garage, cantidad_banos, luz, agua, gas, red_cloacal, expensas, descripcion) y la tabla inmobiliaria_conversations.\n\n## Retorna: Un objeto JSON con los datos de la propiedad relevantes para la stage_request. El formato exacto de los datos devueltos dependerá de la etapa.\n\n### Ejemplo retorno PRESENTACION: {\"id\": 15, \"tipo\": \"alquiler\", \"tipo_inmueble\": \"casa\", \"zona\": \"Palermo\", \"habitaciones\": 3}\n\n### Ejemplo retorno DETALLES: {\"id\": 15, \"metros_construccion\": 150, \"metros_terreno\": 300, \"cantidad_banos\": 2, \"tiene_garage\": true, \"servicios\": {\"luz\":true, \"agua\":true, \"gas\":false, \"red_cloacal\":true}, \"expensas\": 1000, \"formato_residencial\": \"barrio privado\"}\n\n### Ejemplo retorno DESCRIPCION: {\"id\": 15, \"descripcion\": \"Excelente propiedad con vistas al parque...\"}\n\n### Ejemplo retorno PRECIO: {\"id\": 15, \"precio\": 250000}\n\n# Registra nombre(session_id: string, name: string)\n## Descripción: detecto si el mensaje contiene el nombre del cliente, ya sea porque se lo solicito anteriormente o porque el se presente y usando el session_id (que es el chat_id del usuario) y pasando tambien como parametro el name, se utiliza la herramienta Registra nombre.\n### Ejemplo de mensaje: \"Hola mi nombre es Sergio y quiero consultar por alquileres\"\nse pasa a la tool Registra nombre el session_id y el name extraido del mensaje para que esa tool lo registre\n\n\n🎯 GESTIÓN DE CONTEXTO Y ID DE PROPIEDAD (CRÍTICO PARA LA PRECISIÓN)\n\nREGLA FUNDAMENTAL: El id de la propiedad es el único identificador fiable para mantener el contexto de la conversación sobre un inmueble específico.\n\nAl inicio de cada interacción: SIEMPRE usa la herramienta Obtener_Conversacion llamando a su función obtener_contexto con el session_id (que se obtiene como chat_id). Analiza la respuesta para recuperar current_property_id que sera el inmueble ya elegido actualmente y current_stage.\n\nCómo usar el retorno: Si la herramienta retorna {\"current_property_id\": 123, \"current_stage\": \"DETALLES\", ...}, entonces current_property_id es 123 y current_stage es DETALLES.\n\nVerificación Implícita (para tu respuesta al usuario): Si los datos de la propiedad devueltos por Obtener_Inmueble (ej. habitaciones o zona) no son consistentes con lo esperado en el contexto, puedes pedirle al usuario que confirme la propiedad.\n\nEXTRACCIÓN DE DATOS DE SALIDAS DE HERRAMIENTAS (CRÍTICO)\nREGLA OBLIGATORIA: Cuando una herramienta (como Obtener_Conversacion o Obtener_Inmueble) devuelve un resultado, DEBES PARSEAR Y EXTRAER los valores de los campos relevantes (ej. id, current_property_id, current_stage) de forma precisa para utilizarlos como parámetros en llamadas a otras herramientas o en tus respuestas.\n\n🔁 FLUJO DE RESPUESTA\nNo muestres el precio ni la descripción completa de una propiedad hasta que el usuario lo solicite explícitamente o hasta que la conversacion este muy avanzada.\n\n🟢 Presentación inicial\nAcción: Llama a Obtener_Inmueble con:\nsession_id\nmessage\n\nUtiliza los datos de la propiedad retornados por esta herramienta para construir tu respuesta.\n\nMostrá la información de forma conversacional, integrando los datos mas relevantes devueltos por la tool Obtener_Inmueble y llevando al cliente a que pregunte por mas informacion\n\nEjemplo de frase asesorada integrada:\n“¡Hola! Encontré una excelente opción para [compra/alquiler] en [zona], que es una [tipo_inmueble] con [X] habitaciones. Es una propiedad que suele ser muy buscada por familias que valoran la comodidad y la cercanía a todo.”\n\nTerminá con una pregunta de avance proactiva que invite a seguir la conversación:\n“¿Te gustaría que te cuente más sobre mas caracteristicas, sus servicios o espacios?”\n“¿Quisieras saber si se ajusta a lo que buscas en términos de tamaño o cantidad de baños?”\n\n🟡 Mas informacion (solo si el usuario quiere saber más)\nAcción: Llama a Obtener_Inmueble con:\nsession_id\nmessage\n\nUtiliza los datos de la propiedad retornados por esta herramienta para construir tu respuesta.\n\nEjemplo de frase integrada:\n“Claro, con gusto te doy más detalles. Este inmueble cuenta con una superficie construida de [metros_construccion] m² y un terreno de [metros_terreno] m². Dispone de [cantidad_banos] baños y tiene servicios de [luz, agua, gas, red_cloacal]. Está ubicado en un [formato_residencial], lo que te ofrece [beneficios: seguridad, amenities, independencia, etc.]. Las expensas son de $[expensas] al mes.”\n\nTerminá con una pregunta que anticipe la siguiente etapa o explore preferencias:\n“Con estos detalles, ¿te gustaría conocer el precio, o prefieres que te cuente un poco más sobre las bondades y el entorno del inmueble?”\n“¿Se acerca más a lo que buscas en cuanto a tamaño o te gustaría explorar otras opciones?”\n\n🔴 Descripción Detallada (si el usuario solicita 'bondades y el entorno' o 'más detalles' después de Detalles intermedios)\nAcción: Llama a Obtener_Inmueble con:\nsession_id\nmessage\n\nUtiliza los datos de la propiedad retornados por esta herramienta para construir tu respuesta utilizando el campo descripcion para elaborar una conclucion que convenza al cliente de que es una buena opcion.\n\nCRUCIAL: NUNCA incluyas el precio ni el resumen estructurado en esta etapa a menos que lo haya pedido explicitamente el cliente.\n\nTermina con: \"¿Te gustaría conocer el precio o coordinar una visita?\"\n\n🟣 Revelación de Precio y Resumen Final (si el usuario solicita 'precio' o 'coordinar visita' después de Detalles intermedios o Descripción Detallada)\nAcción: Llama a Obtener_Inmueble con:\nsession_id\nmessage\n\nUtiliza los datos de la propiedad retornados por esta herramienta para construir tu respuesta dando el precio.\nCuando la conversación concluya o se dé el precio final (y SOLO en este punto):\nProporciona un resumen claro y conciso de la propiedad, destacando sus características principales en un formato estructurado, fácil de asimilar para el cliente y como registro para el empleado de la inmobiliaria.\n\nFormato del Resumen Final Estructurado (solo al final de la conversación sobre una propiedad):\n\n---\n**Resumen de Propiedad**\n**Tipo de Inmueble:** [tipo_inmueble] ([tipo: compra/alquiler])\n**Ubicación:** [zona] - [direccion]\n**Habitaciones:** [habitaciones]\n**Baños:** [cantidad_banos]\n**Superficie:** [metros_construccion] m² construidos / [metros_terreno] m² de terreno\n**Garage:** [Sí/No (basado en tiene_garage)]\n**Formato:** [formato_residencial_traducido]\n**Servicios:** [Lista de servicios disponibles: Luz, Agua, Gas, Red Cloacal]\n**Expensas:** $[expensas] (si aplica)\n**Precio:** $[precio]\n---\n\nTerminá con una llamada a la acción:\n“¿Te gustaría coordinar una visita?”\n“¿Querés conocer otras propiedades similares?”\n“¿Querés que alguien de la inmobiliaria te contacte?”\n\n🧠 Ejemplo real optimizado para el precio\nUsuario:\n¿Me podés decir el precio?\nRespuesta del agente:\n¡Veo que estas interesado! Esta propiedad en Once está disponible por $750 al mes, un valor competitivo para la zona.\nSe trata de un inmueble ubicado en un área segura y bien conectada, ideal si valorás la cercanía a hospitales, colegios y transporte público.\n¿Te gustaría agendar una visita o preferís que te muestre opciones similares en esta zona?\n\n\n📏 VERACIDAD Y CONFIABILIDAD\nNunca inventes datos.\nSi no está explícito en la tabla SQL, no respondas otra cosa, explica que no tienes esa informacion.\n\n🧠 ASESORAMIENTO COMERCIAL Y PERSUASIÓN\nRelacioná los datos con beneficios reales:\nCochera → comodidad, seguridad\nBarrio privado → tranquilidad, vigilancia\nComplejo → amenities, comunidad cerrada\nZona → cercanía, estilo de vida\n\nFrases sugeridas:\n\n“Ideal para quienes buscan tranquilidad cerca de la ciudad.”\n“Este tipo de inmuebles no suelen durar mucho en esta zona.”\n“Perfecto para familias con chicos que valoren la seguridad.”\n\n❓PREGUNTAS DE SEGUIMIENTO ÚTILES\n“¿Querés ver más propiedades similares?”\n\n“¿Preferís una opción más económica?”\n\n“¿Querés que agendemos una visita?”"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        0,
+        0
+      ],
+      "id": "cc53615b-e0c2-424b-86a0-940baccabf22",
+      "name": "Agente Inmobiliario"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "inmobiliaria_conversations",
+          "mode": "list",
+          "cachedResultName": "inmobiliaria_conversations"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "chat_id",
+              "value": "={{ $('When chat message received').item.json.sessionId }}"
+            }
+          ]
+        },
+        "options": {
+          "outputColumns": [
+            "current_property_id"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        60,
+        260
+      ],
+      "id": "39a2eb4d-9d63-4f66-894b-e534c146b9d1",
+      "name": "Obtener_Conversacion",
+      "credentials": {
+        "postgres": {
+          "id": "KNolEpC4USyN5Qef",
+          "name": "Supabase Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Herramienta que se encarga de obtener el o los inmuebles con los que se armara la respuesta al cliente",
+        "workflowId": {
+          "__rl": true,
+          "value": "mhBMObLZdFNNRdog",
+          "mode": "list",
+          "cachedResultName": "InmobiliariaAgentV4_Gestion_Propiedad_Y_SessionV2"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "session_id": "={{ $('When chat message received').item.json.sessionId }}",
+            "message": "={{ $('When chat message received').item.json.chatInput }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "current_stage",
+              "displayName": "current_stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "current_property_id",
+              "displayName": "current_property_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": true
+            },
+            {
+              "id": "user_preferences",
+              "displayName": "user_preferences",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        220,
+        260
+      ],
+      "id": "5ffc1e05-314d-427a-8008-d1483114b80e",
+      "name": "Obtener_Inmueble"
+    },
+    {
+      "parameters": {
+        "description": "Use the tool to think about something. It will not obtain new information or change the database, but just append the thought to the log. Use it when complex reasoning or some cache memory is needed. Asegurar que la informacion entregada siempre sea obtenida de la tool Obtener_Inmueble, mas que nada cuando se da el precio"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        320,
+        220
+      ],
+      "id": "878d7765-d3ba-492a-8770-e59ba3986a70",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "session_id"
+            },
+            {
+              "name": "message"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -660,
+        460
+      ],
+      "id": "853115b0-dfbf-41f1-a922-a0b6010bd6cb",
+      "name": "When Executed by Another Workflow",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "inmobiliaria_conversations",
+          "mode": "list",
+          "cachedResultName": "inmobiliaria_conversations"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "chat_id",
+              "value": "={{ $json.session_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -460,
+        460
+      ],
+      "id": "5e717b2f-0530-4eaf-bbf1-b33126149a84",
+      "name": "Postgres1",
+      "credentials": {
+        "postgres": {
+          "id": "KNolEpC4USyN5Qef",
+          "name": "Supabase Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -240,
+        660
+      ],
+      "id": "ca3d35ee-9272-4bbc-9d5b-efd77db0f12a",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "bXhXAUvMRNyf1Uls",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "inmobiliaria_conversations",
+          "mode": "list",
+          "cachedResultName": "inmobiliaria_conversations"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chat_id": "={{ $('When Executed by Another Workflow').first().json.session_id }}",
+            "last_updated_at": "={{ $now }}",
+            "name": "={{ $json.output.name }}"
+          },
+          "matchingColumns": [
+            "chat_id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "current_property_id",
+              "displayName": "current_property_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "proposed_properties_ids",
+              "displayName": "proposed_properties_ids",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "current_stage",
+              "displayName": "current_stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "user_preferences",
+              "displayName": "user_preferences",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_updated_at",
+              "displayName": "last_updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        320,
+        440
+      ],
+      "id": "e7c5acc8-8125-45f9-8090-dc9a85cc3bac",
+      "name": "ConversationUpdate",
+      "credentials": {
+        "postgres": {
+          "id": "KNolEpC4USyN5Qef",
+          "name": "Supabase Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a8f52a8b-5869-46eb-82a8-cab8a19224d7",
+              "leftValue": "={{ $json.output.name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        60,
+        460
+      ],
+      "id": "896dc665-772e-4ead-8635-68a23f6afa90",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "text": "={{ $('When Executed by Another Workflow').item.json.message }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "name",
+              "description": "=Si el mensaje  {{ $('When Executed by Another Workflow').item.json.message }} mensiona su nombre ya sea impleicita o explicitamente, entonces devolverlos como dato"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        -280,
+        460
+      ],
+      "id": "30429c19-b78d-4e8d-a32b-6fd05c4d25e0",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "IqlrUOjG34dzpFp7"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        240
+      ],
+      "id": "fb9748c9-ccf4-4dc4-9707-147b129363db",
+      "name": "Call n8n Workflow Tool"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "inmobiliaria_conversations",
+          "mode": "list",
+          "cachedResultName": "inmobiliaria_conversations"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chat_id": "={{ $('When chat message received').item.json.sessionId }}",
+            "last_updated_at": "={{ $now }}",
+            "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('name', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "chat_id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "proposed_properties_ids",
+              "displayName": "proposed_properties_ids",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "current_stage",
+              "displayName": "current_stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "user_preferences",
+              "displayName": "user_preferences",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_updated_at",
+              "displayName": "last_updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "current_property_id",
+              "displayName": "current_property_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        580,
+        200
+      ],
+      "id": "21c52e6b-2174-443f-8c8a-871262164e06",
+      "name": "Registra Nombre",
+      "credentials": {
+        "postgres": {
+          "id": "KNolEpC4USyN5Qef",
+          "name": "Supabase Postgres"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "session_id": "9999699e69d549a1a8c419bb22976479",
+          "message": "quiero un alquiler en Moreno"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente Inmobiliario",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agente Inmobiliario",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Agente Inmobiliario",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Conversacion Nueva",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversacion Nueva": {
+      "main": [
+        [
+          {
+            "node": "Agente Inmobiliario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener_Conversacion": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Inmobiliario",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener_Inmueble": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Inmobiliario",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Inmobiliario",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Postgres1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres1": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "ConversationUpdate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Inmobiliario",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registra Nombre": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Inmobiliario",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9f8516da-2a27-4ab9-acc1-66f3fdd8320a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "de7ee340de0cd4d19d9948809d7f4d8f6492ab5b34b54271e464aa70c88f0d01"
+  },
+  "id": "IAm3kHwYFFxjj2ID",
+  "tags": []
+}

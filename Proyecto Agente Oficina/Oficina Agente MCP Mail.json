@@ -1,0 +1,72 @@
+{
+  "name": "Secretaria Mail",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "gmail"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "af179321-934b-401a-91ea-5a0fa5ac4a71",
+      "name": "MCP Server Trigger",
+      "webhookId": "b67acacc-b965-4ff1-a549-d89574481e8b"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', `Destinatario del email.`, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        240
+      ],
+      "id": "58bdd5ad-9697-4986-b156-1cc74561b13e",
+      "name": "Enviar email",
+      "webhookId": "def62aec-5fd4-42ab-848e-fe98855e6275",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xuGYNv4eiiCyHxfl",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Enviar email": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Argentina/Buenos_Aires",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "9cb3501d-c5a2-4537-8e80-6e07ff46df40",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "de7ee340de0cd4d19d9948809d7f4d8f6492ab5b34b54271e464aa70c88f0d01"
+  },
+  "id": "ObOurewfLzHjDt5E",
+  "tags": []
+}

@@ -1,0 +1,307 @@
+{
+  "name": "Secretaria Calendario",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "calendar"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3fd4bb1c-3022-4ed6-bfba-2e0f1fbd2f91",
+      "name": "MCP Server Trigger",
+      "webhookId": "c431151b-ecce-4272-a978-d737c95f3f8a"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "86f8d1a1511962db696a8ed083f3e69d96edf94bd53149ab8b192a989dbdabda@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Carshop"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', `Fecha y hora de inicio de la reunión.`, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', `Fecha y hora de fin de la reunión.`, 'string') }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', `Participante de la reunión. Si viene vacío, no lo añadas.`, 'string') }}"
+          ],
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', `Descripción de la reunión.`, 'string') }}",
+          "sendUpdates": "all",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', `Título de la reunión.`, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -100,
+        180
+      ],
+      "id": "a679e101-ff20-440f-bed0-f3fea28b6188",
+      "name": "Crear evento",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "TXMpSuVi5n73TToL",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "86f8d1a1511962db696a8ed083f3e69d96edf94bd53149ab8b192a989dbdabda@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Carshop"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        40,
+        200
+      ],
+      "id": "9d1f8eef-5318-416e-aa2b-c4429f859184",
+      "name": "Eliminar Evento",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "TXMpSuVi5n73TToL",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "86f8d1a1511962db696a8ed083f3e69d96edf94bd53149ab8b192a989dbdabda@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Carshop"
+        },
+        "limit": 5,
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {
+          "timeZone": {
+            "__rl": true,
+            "value": "America/Argentina/Buenos_Aires",
+            "mode": "list",
+            "cachedResultName": "America/Argentina/Buenos_Aires"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        180,
+        220
+      ],
+      "id": "977575d3-ff4c-4f32-9e01-4aafddd22651",
+      "name": "Obtener Eventos",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "TXMpSuVi5n73TToL",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "calendar": {
+          "__rl": true,
+          "value": "86f8d1a1511962db696a8ed083f3e69d96edf94bd53149ab8b192a989dbdabda@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Carshop"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {
+          "timeZone": {
+            "__rl": true,
+            "value": "America/Argentina/Buenos_Aires",
+            "mode": "list",
+            "cachedResultName": "America/Argentina/Buenos_Aires"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        200
+      ],
+      "id": "83f9d827-7528-41b0-bce8-0d5258c3a192",
+      "name": "Obtener Evento",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "TXMpSuVi5n73TToL",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "86f8d1a1511962db696a8ed083f3e69d96edf94bd53149ab8b192a989dbdabda@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Carshop"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "updateFields": {
+          "attendeesUi": {
+            "values": {
+              "mode": "replace",
+              "attendees": [
+                "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', ``, 'string') }}"
+              ]
+            }
+          },
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+          "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        20
+      ],
+      "id": "4649f2c4-0c79-4942-b663-0e99daacb16b",
+      "name": "Actualizar Evento",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "TXMpSuVi5n73TToL",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "86f8d1a1511962db696a8ed083f3e69d96edf94bd53149ab8b192a989dbdabda@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Carshop"
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Time', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End_Time', ``, 'string') }}",
+        "options": {
+          "timezone": {
+            "__rl": true,
+            "value": "America/Argentina/Buenos_Aires",
+            "mode": "list",
+            "cachedResultName": "America/Argentina/Buenos_Aires"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -220,
+        100
+      ],
+      "id": "244e5033-f7be-4d8f-9071-bd8e1066dae5",
+      "name": "Comprobar Disponibilidad",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "TXMpSuVi5n73TToL",
+          "name": "Google Calendar account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Crear evento": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Eliminar Evento": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener Eventos": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener Evento": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar Evento": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Comprobar Disponibilidad": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Argentina/Buenos_Aires",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "8782a7fc-e6dc-47f4-959e-4d3ea0fd5880",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "de7ee340de0cd4d19d9948809d7f4d8f6492ab5b34b54271e464aa70c88f0d01"
+  },
+  "id": "geUfMyLv2K28GadC",
+  "tags": []
+}

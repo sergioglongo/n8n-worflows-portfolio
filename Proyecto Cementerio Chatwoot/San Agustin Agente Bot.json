@@ -1,0 +1,1632 @@
+{
+  "name": "San Agustin Agente Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "san-agustin-agente-bot",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        20
+      ],
+      "id": "68fe956c-778e-4a57-b904-0b0531d32fc1",
+      "name": "Webhook",
+      "webhookId": "b96dc7ed-2636-496a-bbbb-45c31091aaa4"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.event }}",
+                    "rightValue": "automation_event.conversation_created",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "2f8c21e0-9d0f-4c06-9eea-6580bced21e6"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Nueva convesacion"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "901b321f-fa02-4016-9ce6-6da57c53b62d",
+                    "leftValue": "={{ $json.body.event }}",
+                    "rightValue": "automation_event.message_created",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Mensaje Nuevo"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "778f6613-3af5-457c-bd46-b0c4b7979374",
+                    "leftValue": "={{ $json.body.event }}",
+                    "rightValue": "automation_event.conversation_updated",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Conversacion existente"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -20,
+        20
+      ],
+      "id": "13eb58db-1736-43b4-b379-6468b7ff88cd",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f71bda81-253d-4159-84da-7aedf00ec3b9",
+              "name": "message.id",
+              "value": "={{ $('Switch').item.json.body.messages[0].id ||  $('Switch').item.json.body.conversation.messages[0].id}}",
+              "type": "string"
+            },
+            {
+              "id": "534adf8a-6b7a-4f51-a172-df771d024e7c",
+              "name": "message.contenido",
+              "value": "={{ $('Switch').item.json.body.messages[0].content }}",
+              "type": "string"
+            },
+            {
+              "id": "4b18021b-9260-41ef-a85d-3b2f5cbcda67",
+              "name": "message.date",
+              "value": "={{ $('Switch').item.json.body.messages[0].created_at.toDateTime('s').toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "04cbe102-8d5e-4389-8a98-a918aafd8e74",
+              "name": "message.type",
+              "value": "={{ $('Switch').item.json.body.messages[0].attachments?.[0]?.file_type ?? \"text\" }}",
+              "type": "string"
+            },
+            {
+              "id": "7e3e2967-2db3-47d5-a808-fab4c4ffe33e",
+              "name": "message.url",
+              "value": "={{ $('Switch').item.json.body.messages[0].attachments?.[0]?.data_url ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "f5b38cb7-e283-4ffb-9d8f-ebc209120c79",
+              "name": "chat.id",
+              "value": "={{ $('Switch').item.json.body.messages[0].conversation_id }}",
+              "type": "string"
+            },
+            {
+              "id": "458f7dc7-1213-42e8-bc3a-53d233ede77a",
+              "name": "account.id",
+              "value": "={{ $('Switch').item.json.body.messages[0].account_id }}",
+              "type": "string"
+            },
+            {
+              "id": "fd262b79-47a6-4098-89d8-a04673810a1e",
+              "name": "channel",
+              "value": "={{ $('Switch').item.json.body.channel }}",
+              "type": "string"
+            },
+            {
+              "id": "b2a42a70-91ea-43ef-9519-322e46b08771",
+              "name": "output",
+              "value": "outgoing",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        20
+      ],
+      "id": "559f1207-d5d6-4b9c-a5b3-fe9b7be7bfbb",
+      "name": "Parametrizacion"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fd34e85a-5122-4bea-9fef-bf6cae27b01c",
+              "leftValue": "={{ $json.body.meta.assignee.name }}",
+              "rightValue": "Agente Bot",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        100,
+        300
+      ],
+      "id": "e3323cb5-c4b9-45e2-a8a4-6836bb5e1a8a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://automatizaciones-chatwoot.nzmzwk.easypanel.host/api/v1/accounts/{{$json.body.messages[0].account_id}}/conversations/{{$json.body.messages[0].conversation_id}}/custom_attributes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"custom_attributes\":{\n  \"atendido_por\":\"Agente\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        -180
+      ],
+      "id": "be3826fb-aa15-4fff-bad3-f08fd9be8f18",
+      "name": "Chatwoot cambia atributo a Agente",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BZuGW6fRbdsoeezo",
+          "name": "Chatwoot SAgustin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://automatizaciones-chatwoot.nzmzwk.easypanel.host/api/v1/accounts/{{$json.body.messages[0].account_id}}/conversations/{{$json.body.messages[0].conversation_id}}/custom_attributes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"custom_attributes\":{\n  \"atendido_por\":\"Agente\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        240
+      ],
+      "id": "aed2d73c-efdb-418e-b528-5d45ac83c1c4",
+      "name": "Chatwoot cambia atributo Agente",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BZuGW6fRbdsoeezo",
+          "name": "Chatwoot SAgustin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://automatizaciones-chatwoot.nzmzwk.easypanel.host/api/v1/accounts/{{$json.body.messages[0].account_id}}/conversations/{{$json.body.messages[0].conversation_id}}/custom_attributes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"custom_attributes\":{\n  \"atendido_por\":\"Humano\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        460
+      ],
+      "id": "aa5c5284-adf3-468c-a61e-108072e7ab83",
+      "name": "Chatwoot cambia atributo Humano",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BZuGW6fRbdsoeezo",
+          "name": "Chatwoot SAgustin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.message.type}}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "19bd7cdb-c305-42ef-a2c4-1c255e04bd70"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "246e8287-f666-42dd-833b-5e368b8dd531",
+                    "leftValue": "={{$json.message.type}}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Texto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b55e8b9d-b6f4-4749-a1f9-2c2c45a6ffea",
+                    "leftValue": "={{$json.message.type}}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Imagen"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1800,
+        20
+      ],
+      "id": "f9c91510-525a-42b4-8bd4-e7e36e369acb",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "url": "={{ \"https://automatizaciones-chatwoot.nzmzwk.easypanel.host\" + $('Webhook').item.json.body.attachments[0].data_url.replace('http://https', '') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2140,
+        -140
+      ],
+      "id": "8a59f793-2498-4215-98bb-6c1799246c60",
+      "name": "Get Audio 64"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        2320,
+        -140
+      ],
+      "id": "33f3c4ca-83c7-443f-8b82-145a09c65b92",
+      "name": "AI transcribe",
+      "credentials": {
+        "openAiApi": {
+          "id": "bXhXAUvMRNyf1Uls",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c064ace7-cfa9-4616-b8de-b2a7e21882fa",
+              "name": "message.id",
+              "value": "={{ $('Parametrizacion').item.json.message.id }}",
+              "type": "string"
+            },
+            {
+              "id": "885da9e3-a68c-4c7f-bc92-cfd781f23220",
+              "name": "message.contenido",
+              "value": "=Audio:\"{{ $json.text }}\"",
+              "type": "string"
+            },
+            {
+              "id": "3283a64d-3c66-46dc-942e-3b4a63a62249",
+              "name": "message.date",
+              "value": "={{ $('Parametrizacion').item.json.message.date }}",
+              "type": "string"
+            },
+            {
+              "id": "673d5a58-4097-4976-8125-83ec26340606",
+              "name": "message.type",
+              "value": "={{ $('Parametrizacion').item.json.message.type }}",
+              "type": "string"
+            },
+            {
+              "id": "397df1c8-166c-4548-bfd5-c9a76de79a20",
+              "name": "chat.id",
+              "value": "={{ $('Parametrizacion').item.json.chat.id }}",
+              "type": "string"
+            },
+            {
+              "id": "b5a05702-2b17-4bb6-bfdb-5c72f61e8851",
+              "name": "account.id",
+              "value": "={{ $('Parametrizacion').item.json.account.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2600,
+        -140
+      ],
+      "id": "c2cb1fac-4ed9-451a-8893-5a2fb912c641",
+      "name": "Audio transcripto"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2900,
+        20
+      ],
+      "id": "b23bbf9b-0a77-4098-bb3c-fffeb4371a10",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "text": "Que es esta imagen",
+        "imageUrls": "={{$json.message.url}}",
+        "options": {
+          "maxTokens": 200
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        2260,
+        200
+      ],
+      "id": "add28d8c-1e69-43a6-b311-47eb482e816b",
+      "name": "Analyze image",
+      "credentials": {
+        "openAiApi": {
+          "id": "bXhXAUvMRNyf1Uls",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c064ace7-cfa9-4616-b8de-b2a7e21882fa",
+              "name": "message.id",
+              "value": "={{ $('Parametrizacion').item.json.message.id }}",
+              "type": "string"
+            },
+            {
+              "id": "885da9e3-a68c-4c7f-bc92-cfd781f23220",
+              "name": "message.contenido",
+              "value": "=Imagen:\"{{ $json.content }}\"",
+              "type": "string"
+            },
+            {
+              "id": "3283a64d-3c66-46dc-942e-3b4a63a62249",
+              "name": "message.date",
+              "value": "={{ $('Parametrizacion').item.json.message.date }}",
+              "type": "string"
+            },
+            {
+              "id": "673d5a58-4097-4976-8125-83ec26340606",
+              "name": "message.type",
+              "value": "={{ $('Parametrizacion').item.json.message.type }}",
+              "type": "string"
+            },
+            {
+              "id": "397df1c8-166c-4548-bfd5-c9a76de79a20",
+              "name": "chat.id",
+              "value": "={{ $('Parametrizacion').item.json.chat.id }}",
+              "type": "string"
+            },
+            {
+              "id": "b5a05702-2b17-4bb6-bfdb-5c72f61e8851",
+              "name": "account.id",
+              "value": "={{ $('Parametrizacion').item.json.account.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2600,
+        200
+      ],
+      "id": "ad762e9a-98b1-4d8d-85d7-b53e392850dd",
+      "name": "Imagen Interpretada"
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ $('Merge Params').item.json.chat.id }}_buffer_chatwoot",
+        "messageData": "={{ JSON.stringify($json.message) }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        3120,
+        20
+      ],
+      "id": "d7f29c26-7b44-4a8b-a93a-06c4987191d4",
+      "name": "Agregar",
+      "credentials": {
+        "redis": {
+          "id": "QEtesDOKls8yzbmN",
+          "name": "Redis VPS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $('Parametrizacion').item.json.chat.id }}_buffer_chatwoot"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        -340
+      ],
+      "id": "e277e4fd-f6ae-4817-bef2-1256e92c0c6f",
+      "name": "Redis1",
+      "credentials": {
+        "redis": {
+          "id": "QEtesDOKls8yzbmN",
+          "name": "Redis VPS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 15
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3820,
+        200
+      ],
+      "id": "4535186c-2041-494f-a528-05d4ba0e6e01",
+      "name": "Wait",
+      "webhookId": "25873991-13d5-4b1b-8068-7cca08ad366e"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "message",
+        "key": "={{ $('Merge Params').item.json.chat.id }}_buffer_chatwoot",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        3460,
+        20
+      ],
+      "id": "e0969bbb-3429-469f-925d-a0fe9077c5ff",
+      "name": "Todos los mensajes",
+      "credentials": {
+        "redis": {
+          "id": "QEtesDOKls8yzbmN",
+          "name": "Redis VPS"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        3880,
+        -180
+      ],
+      "id": "bc10c266-11d7-48d5-ae0c-a029389ec563",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $('Merge Params').item.json.chat.id }}_buffer_chatwoot"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        3880,
+        20
+      ],
+      "id": "298dee9b-c6e8-4a9d-a83f-704dd84d1ce0",
+      "name": "Redis",
+      "credentials": {
+        "redis": {
+          "id": "QEtesDOKls8yzbmN",
+          "name": "Redis VPS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "message",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        4120,
+        20
+      ],
+      "id": "f8c5b7db-abb3-4009-915b-5c74edccc07a",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ JSON.parse($json.message) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4360,
+        20
+      ],
+      "id": "89e3504f-2cfd-42b8-8b54-77a00ed6ce65",
+      "name": "Json parse"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ JSON.parse($json.message.last()).id }}",
+                    "rightValue": "={{ $('Merge Params').item.json.message.id }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    },
+                    "id": "0912a58d-2d25-41c5-a9cb-e555770dd678"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "No hacer nada"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "6e663eff-6fc4-4dc6-b461-317cd1f3a6d0",
+                    "leftValue": "={{ JSON.parse($json.message.last()).date }}",
+                    "rightValue": "={{$now.minus(15,'seconds').toLocal()}}",
+                    "operator": {
+                      "type": "dateTime",
+                      "operation": "before"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Seguir"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Esperar"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        3680,
+        20
+      ],
+      "id": "87359b7c-04f9-4c30-bd7f-ebb48bc6cadd",
+      "name": "Switch2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.contenido }}",
+        "options": {
+          "systemMessage": "=Eres un asistente que responde amablemente preguntas sobre la empresa y cuentas tambien con las herramientas que seran tus fuentes de conocimientos principales\n**Transferir a Humano que puede derivar a una persona para que responda segun lo solicite explicitamente el consultante\n**Knowledge para obtener informacion referente al negocio la cual deberas consultar siempre que la consulta lo requiera y utilizaras solo esta informacion para tener los datos suficientes para elaborar la respuesta.\n**Get Cementerio Data servira para obtener datos de la base de datos de la empresa cuando la consulta lo requiera\n\n## RELACIONES A TENER EN CUENTA\nDifunto -> parcela, fallecido, fallecimiento, nombre\nCliente -> pago, factura, nombre, email, telefono, direccion\n\n## IMPORTANTE\nUtiliza tu memoria para relacionar preguntas anteriores y saber a quien o a que se esta refiriendo la nueva pregunta\nNunca inventes datos\nNunca daras informacion que no sea la conseguida con la tool knowledge\nSi no tienes informacion suficiente responde explicando eso mismo"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        4580,
+        20
+      ],
+      "id": "0a75b477-98f1-4125-ba20-213de7aa1523",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        4500,
+        240
+      ],
+      "id": "ff396735-b89f-4784-ac98-f70702d0ef6e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "bXhXAUvMRNyf1Uls",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://automatizaciones-chatwoot.nzmzwk.easypanel.host/api/v1/accounts/{{$('Merge Params').item.json.account.id}}/conversations/{{$('Merge Params').item.json.chat.id}}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"content\":{{JSON.stringify($json.chatwootMessageContent)}},\"message_type\": \"{{$('Merge Params').item.json.output}}\",\"private\": false}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5260,
+        20
+      ],
+      "id": "e53070ee-03b4-43a6-b5f8-8da4dfc90983",
+      "name": "Respuesta Mensaje hacia Chatwoot",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BZuGW6fRbdsoeezo",
+          "name": "Chatwoot SAgustin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Ejecuta esta tool si se requiere la atencion de un humano",
+        "workflowId": {
+          "__rl": true,
+          "value": "ocoTJfIzpKBCboiR",
+          "mode": "list",
+          "cachedResultName": "Chatwoot Transferir a Humano"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Conversation-ID": "={{ $('Merge Params').item.json.chat.id }}",
+            "ID-de-la-cuenta": "={{ $('Merge Params').item.json.account.id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Conversation-ID",
+              "displayName": "Conversation-ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "ID-de-la-cuenta",
+              "displayName": "ID-de-la-cuenta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        4780,
+        320
+      ],
+      "id": "a9c11fd2-5749-412d-b23c-1e76806b554a",
+      "name": "Transferir a Humano"
+    },
+    {
+      "parameters": {
+        "description": "Utiliza esta herramienta cuando necesites informacion referente al negocio, tanto de servicios, informacion de contacto, ubicacion, medios de pago y todo lo que te sugiera que puede haber en una pagina web de un negocio de cementerio y sepelios",
+        "workflowId": {
+          "__rl": true,
+          "value": "IFVYstEzqDVsgdkP",
+          "mode": "list",
+          "cachedResultName": "San Agustin Knowledge V1 files"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        4900,
+        260
+      ],
+      "id": "bbb33f0f-575a-400c-87b5-b17b17338e3c",
+      "name": "Knowledge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rawAgentOutput = $input.item.json.output;\n\nlet cleanedText = String(rawAgentOutput || '');\n\ncleanedText = cleanedText.replace(/^\\d+:\\s*/gm, '');\n\ncleanedText = cleanedText.replace(/\\*\\*/g, '');\n\ncleanedText = cleanedText.split('\\n').map(line => line.trim()).filter(line => line.length > 0).join('\\n\\n');\n\nif (cleanedText.trim().length === 0) {\n    cleanedText = \"Lo siento, no pude generar una respuesta clara.\";\n}\n\nreturn [{ json: { chatwootMessageContent: cleanedText } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4980,
+        20
+      ],
+      "id": "70077161-7483-4383-9ebf-0d3af604c2d2",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "description": "Herramienta que te dara acceso a informacion de nuestra sistema referentes a clientes, pagos, facturas, difuntos, parcelas",
+        "workflowId": {
+          "__rl": true,
+          "value": "Q99yHTXlm3R78bP4",
+          "mode": "list",
+          "cachedResultName": "San Agustin Get DB Data"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $('Json parse').item.json.contenido }}",
+            "chat_id": "={{ $('Merge Params').item.json.chat.id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        5020,
+        240
+      ],
+      "id": "b5315d4d-9fc4-49df-8660-eb386e5b468e",
+      "name": "Get Cementerio Data"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "agente-interno",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        -300
+      ],
+      "id": "8b1f4cc7-d7bb-4dfd-8d0d-aa1c0ca4c3f0",
+      "name": "Webhook_interno",
+      "webhookId": "6436dcd5-5a0d-47e2-98bb-0e40c14ff8d4"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        540
+      ],
+      "id": "a41b7081-ded8-4c39-8ce5-1c33c4e83c6f",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f71bda81-253d-4159-84da-7aedf00ec3b9",
+              "name": "message.id",
+              "value": "={{ $json.body.conversation.messages[0].id }}",
+              "type": "string"
+            },
+            {
+              "id": "534adf8a-6b7a-4f51-a172-df771d024e7c",
+              "name": "message.contenido",
+              "value": "={{ $json.body.conversation.messages[0].content }}",
+              "type": "string"
+            },
+            {
+              "id": "4b18021b-9260-41ef-a85d-3b2f5cbcda67",
+              "name": "message.date",
+              "value": "={{ $json.body.conversation.messages[0].created_at.toDateTime('s').toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "04cbe102-8d5e-4389-8a98-a918aafd8e74",
+              "name": "message.type",
+              "value": "={{ $json.body.conversation.messages[0].content_type ?? \"text\" }}",
+              "type": "string"
+            },
+            {
+              "id": "7e3e2967-2db3-47d5-a808-fab4c4ffe33e",
+              "name": "message.url",
+              "value": "={{\"\"}}",
+              "type": "string"
+            },
+            {
+              "id": "f5b38cb7-e283-4ffb-9d8f-ebc209120c79",
+              "name": "chat.id",
+              "value": "={{ $json.body.conversation.messages[0].conversation_id }}",
+              "type": "string"
+            },
+            {
+              "id": "458f7dc7-1213-42e8-bc3a-53d233ede77a",
+              "name": "account.id",
+              "value": "={{ $json.body.conversation.messages[0].account_id }}",
+              "type": "string"
+            },
+            {
+              "id": "fd262b79-47a6-4098-89d8-a04673810a1e",
+              "name": "channel",
+              "value": "={{ $json.body.conversation.channel }}",
+              "type": "string"
+            },
+            {
+              "id": "45ab476b-94d2-439f-8cd4-04be6474d063",
+              "name": "output",
+              "value": "=incoming",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1000,
+        -340
+      ],
+      "id": "e2e6dba3-9679-4d91-872b-d924792eef41",
+      "name": "Parametrizacion Interna"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1360,
+        20
+      ],
+      "id": "0621c548-cbcd-4357-b16e-c45e604f0090",
+      "name": "Merge Params"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "295e91a4-f299-4cef-bc31-c3b8704e4b41",
+              "leftValue": "={{ $json.body.event }}",
+              "rightValue": "=message_created",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        60,
+        -300
+      ],
+      "id": "69f4510d-db62-4111-836c-bb1736260752",
+      "name": "If1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        880,
+        -540
+      ],
+      "id": "fecc1fd2-de23-4a23-b0d4-801c4e0190a3",
+      "name": "No Operation, do nothing2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "010b8aac-9599-4855-b46b-b81d6f9c5c7b",
+              "leftValue": "={{ $json.body.sender.type }}",
+              "rightValue": "user",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        540,
+        -320
+      ],
+      "id": "95575bed-1515-4b0c-a6f2-d5554296716c",
+      "name": "If2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        760,
+        -180
+      ],
+      "id": "f9e492b8-4c99-4695-b303-7fa0ce5ec038",
+      "name": "No Operation, do nothing3"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Merge Params').item.json.chat.id }}",
+        "contextWindowLength": 3
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        4660,
+        240
+      ],
+      "id": "69d54c34-56b6-4ee4-947d-b9694078922e",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Chatwoot cambia atributo a Agente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parametrizacion",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatwoot cambia atributo a Agente": {
+      "main": [
+        [
+          {
+            "node": "Parametrizacion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Chatwoot cambia atributo Agente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Chatwoot cambia atributo Humano",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parametrizacion": {
+      "main": [
+        [
+          {
+            "node": "Merge Params",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Audio 64": {
+      "main": [
+        [
+          {
+            "node": "AI transcribe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI transcribe": {
+      "main": [
+        [
+          {
+            "node": "Audio transcripto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Get Audio 64",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Analyze image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audio transcripto": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze image": {
+      "main": [
+        [
+          {
+            "node": "Imagen Interpretada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Imagen Interpretada": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Agregar": {
+      "main": [
+        [
+          {
+            "node": "Todos los mensajes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Todos los mensajes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Todos los mensajes": {
+      "main": [
+        [
+          {
+            "node": "Switch2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Json parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch2": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Redis",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Agregar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Json parse": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respuesta Mensaje hacia Chatwoot": {
+      "main": [
+        []
+      ]
+    },
+    "Transferir a Humano": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Knowledge": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Respuesta Mensaje hacia Chatwoot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Cementerio Data": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook_interno": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parametrizacion Interna": {
+      "main": [
+        [
+          {
+            "node": "Merge Params",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Params": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Parametrizacion Interna",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d502370c-b860-47f3-8d48-853bdb5d2cb2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "de7ee340de0cd4d19d9948809d7f4d8f6492ab5b34b54271e464aa70c88f0d01"
+  },
+  "id": "SOG1FJUuNL7jgZWu",
+  "tags": []
+}

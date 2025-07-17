@@ -1,0 +1,294 @@
+{
+  "name": "Chatwoot Transferir a Humano",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Conversation-ID"
+            },
+            {
+              "name": "ID-de-la-cuenta"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "23ad808a-3833-45f3-aa7b-b61d594c7483",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "url": "=https://automatizaciones-chatwoot.nzmzwk.easypanel.host/api/v1/accounts/{{ $json['ID-de-la-cuenta'] }}/agents",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "f95a976a-deeb-4d5a-a58f-648a225f08b4",
+      "name": "Lista de Agentes",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BZuGW6fRbdsoeezo",
+          "name": "Chatwoot SAgustin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filtrar agentes que están online y que NO contengan 'bot' en su nombre (ignorando mayúsculas/minúsculas)\nconst disponibles = items.filter(item =>\n  item.json.availability_status === 'online' &&\n  !item.json.name.toLowerCase().includes('bot') // <-- CAMBIO AQUÍ\n);\n\n// Si hay disponibles, elegimos uno al azar\nif (disponibles.length > 0) {\n  const elegido = disponibles[Math.floor(Math.random() * disponibles.length)];\n  return [elegido];\n} else {\n  // Si no hay ninguno disponible\n  return [\n    {\n      json: {\n        message: \"No hay agentes disponibles en este momento.\"\n      }\n    }\n  ];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        20
+      ],
+      "id": "b7c30f26-68f5-4ea2-86fb-00d108547198",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "02f8272a-e139-47cb-b130-b4436506600e",
+              "leftValue": "response",
+              "rightValue": "no hay agentes disponibles",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        0
+      ],
+      "id": "ea362f22-ad29-4a00-a1d4-fb523cad2546",
+      "name": "Comprueba si Hay Agentes Disponibles"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6c0bce0e-0959-404b-9360-127f7f4cb166",
+              "name": "response",
+              "value": "No hay agentes disponibles",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        -100
+      ],
+      "id": "43fb7875-efbb-4d26-b35f-434026774a55",
+      "name": "Responde no hay agentes disponibles"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://automatizaciones-chatwoot.nzmzwk.easypanel.host/api/v1/accounts/{{ $('When Executed by Another Workflow').item.json['ID-de-la-cuenta'] }}/conversations/{{ $('When Executed by Another Workflow').item.json['Conversation-ID'] }}/assignments",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "assignee_id",
+              "value": "={{ $('Code').item.json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        120
+      ],
+      "id": "9f23f68a-75ad-41fb-9845-6bc7e43d0169",
+      "name": "Asignacion de Agente",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BZuGW6fRbdsoeezo",
+          "name": "Chatwoot SAgustin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://automatizaciones-chatwoot.nzmzwk.easypanel.host/api/v1/accounts/{{ $('When Executed by Another Workflow').item.json['ID-de-la-cuenta'] }}/conversations/{{ $('When Executed by Another Workflow').item.json['Conversation-ID']}}/custom_attributes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"custom_attributes\":{\n  \"atendido_por\":\"Humano\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1080,
+        120
+      ],
+      "id": "3532eca1-cec2-4a24-9a43-23dc9a5ff25c",
+      "name": "Desactivar Bot",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BZuGW6fRbdsoeezo",
+          "name": "Chatwoot SAgustin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5d1c3336-0bf5-4145-8f4f-cf78f8b9b106",
+              "name": "response",
+              "value": "En un momento uno de nuestros agentes lo atenderá",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1300,
+        120
+      ],
+      "id": "821e220a-1e83-4bdc-bf65-c55b07dbc0e7",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "Conversation-ID": "2",
+          "ID-de-la-cuenta": "1"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Lista de Agentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lista de Agentes": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Comprueba si Hay Agentes Disponibles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Comprueba si Hay Agentes Disponibles": {
+      "main": [
+        [
+          {
+            "node": "Responde no hay agentes disponibles",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Asignacion de Agente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asignacion de Agente": {
+      "main": [
+        [
+          {
+            "node": "Desactivar Bot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Desactivar Bot": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ce00cac5-89a0-42b8-8c77-6dd8e8c7b0b5",
+  "meta": {
+    "instanceId": "de7ee340de0cd4d19d9948809d7f4d8f6492ab5b34b54271e464aa70c88f0d01"
+  },
+  "id": "ocoTJfIzpKBCboiR",
+  "tags": []
+}
