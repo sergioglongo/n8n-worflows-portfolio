@@ -37,28 +37,28 @@ Para cada proyecto, te invito a:
 Además de mi experiencia en automatización con n8n y Make, cuento con una sólida base en desarrollo FullStack, lo que me permite crear soluciones integrales y personalizadas. Mis habilidades incluyen:
 
 **Desarrollo FullStack:**
-* [cite_start]**Lenguajes:** JavaScript [cite: 7, 28][cite_start], TypeScript [cite: 7][cite_start], PHP [cite: 7, 14, 16, 35][cite_start], Python
-* [cite_start]**Frontend:** React.js [cite: 7, 14, 16, 29][cite_start], Next.js [cite: 15, 30][cite_start], React Native [cite: 7, 14, 15, 33][cite_start], Angular [cite: 14][cite_start], Ionic [cite: 15, 34][cite_start], Flutter
-* [cite_start]**Backend:** Node.js [cite: 7, 15, 16, 31] [cite_start](Express, TypeORM), Django [cite: 14, 36][cite_start], Laravel
-* [cite_start]**Bases de Datos:** PostgreSQL [cite: 7, 14, 16, 32][cite_start], MySQL
-* [cite_start]**Metodologías y Herramientas:** GitHub [cite: 16][cite_start], Bitbucket [cite: 16][cite_start], Jira [cite: 16][cite_start], Trello [cite: 16][cite_start], Postman [cite: 16][cite_start], Visual Studio Code
+* **Lenguajes:** JavaScript, TypeScript, PHP, Python
+* **Frontend:** React.js, Next.js, React Native, Angular, Ionic, Flutter
+* **Backend:** Node.js(Express, TypeORM), Django, Laravel
+* **Bases de Datos:** PostgreSQL, MySQL
+* **Metodologías y Herramientas:** GitHub, Bitbucket, Jira, Trello, Postman, Visual Studio Code
 
 **Habilidades en n8n:**
-* [cite_start]Diseño y desarrollo de flujos de trabajo complejos.
-* [cite_start]Integración con diversas APIs (REST, GraphQL).
+* Diseño y desarrollo de flujos de trabajo complejos.
+* Integración con diversas APIs (REST, GraphQL).
 * Manejo de bases de datos.
-* [cite_start]Automatización de tareas repetitivas y optimización de procesos.
+* Automatización de tareas repetitivas y optimización de procesos.
 * Uso de nodos estándar y personalizados.
 * Depuración y mantenimiento de flujos en producción.
-* [cite_start]Workflows automatizados con inteligencia artificial.
+* Workflows automatizados con inteligencia artificial.
 
 ## Contacto
 
 Estoy siempre abierto a nuevas oportunidades y colaboraciones. Si te interesa discutir sobre automatización, desarrollo o mis proyectos, no dudes en contactarme.
 
-* [cite_start]**Tu Nombre/Alias**: Sergio G. Longo
-* [cite_start]**LinkedIn**: https://www.linkedin.com/in/sergio-longo-7987b458 [cite: 4, 19]
-* [cite_start]**Correo Electrónico**: sergiolongo@gmail.com [cite: 4]
-* [cite_start]**GitHub**: https://github.com/sergioglongo
+* **Tu Nombre/Alias**: Sergio G. Longo
+* **LinkedIn**: https://www.linkedin.com/in/sergio-longo-7987b458
+* **Correo Electrónico**: sergiolongo@gmail.com
+* **GitHub**: https://github.com/sergioglongo
 
 ---
